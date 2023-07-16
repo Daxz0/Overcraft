@@ -44,6 +44,7 @@ ov_character_selector_ui_handler:
     events:
         on player clicks ov_*_icon in ov_character_selector_ui_*:
             - define data <script[<context.item.flag[data]>]>
+            - flag <player> ov.match.character.name:<[data].data_key[data_name]>
             - define primary <[data].data_key[primary_fire].if_null[air]>
             - define secondary <[data].data_key[secondary_fire].if_null[air]>
             - define ability1 <[data].data_key[ability_1].if_null[air]>

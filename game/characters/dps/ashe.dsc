@@ -2,6 +2,7 @@ ov_ashe_data:
     type: data
 
     name: Ashe
+    data_name: ashe
     primary_fire: ov_ashe_viper
     secondary_fire: ov_ashe_viper_ads
 

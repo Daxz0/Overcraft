@@ -2,10 +2,11 @@ ov_tracer_data:
     type: data
 
     name: Tracer
+    data_name: tracer
     primary_fire: ov_tracer_pistols
 
     ability_1: ov_tracer_blink
-    ability_2: air
+    ability_2: ov_tracer_recall
     ultimate: air
 
     ammo: 40
@@ -72,6 +73,25 @@ ov_tracer:
                 - stop
         - teleport <player> <[beam].get[<[beam].size.sub[3]>].with_y[<[hit].y>]>
 
+    ability_2:
+        #recall
+        - define waitTime <element[1].div[<player.flag[ov.match.character.recall].size>]>
+        - foreach <player.flag[ov.match.character.recall]> as:point:
+            - teleport <player> <[point]>
+            - wait <[waitTime]>
+
+ov_tracer_recall_handler:
+    type: world
+    debug: false
+    events:
+        on delta time secondly every:3:
+            - foreach <server.online_players_flagged[ov.match.character.name]> as:__player:
+                - if <player.flag[ov.match.character.name]> == tracer && !<player.has_flag[ov.match.character.recall]>:
+                    - flag <player> ov.match.character.recall:!
+                    - flag <player> ov.match.character.recall:->:<player.location> expire:3s
+        on player walks flagged:ov.match.character.name priority:2:
+            - if <player.flag[ov.match.character.name]> == tracer && !<player.has_flag[ov.match.character.recall]>:
+                - flag <player> ov.match.character.recall:->:<player.location>
 
 
 
@@ -106,3 +126,14 @@ ov_tracer_blink:
     flags:
         ability: true
         ability_1: ov_tracer
+
+ov_tracer_recall:
+    type: item
+    display name: <&f>Recall
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9217
+    flags:
+        ability: true
+        ability_2: ov_tracer
