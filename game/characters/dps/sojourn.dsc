@@ -19,10 +19,35 @@ ov_sojourn:
         - define characterName Sojourn
 
     primary_fire:
-        #WIP
+        # Hitscan
+        - ratelimit <player> 0.071
+        - repeat 3:
+            - define hand_pos <player.eye_location.below[0.2].right[0.4]>
+            - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air].above[0.2].right[0.4]||null>
+            - if <[hit]> != null:
+                - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
+                    - playeffect effect:redstone offset:0 special_data:0.4|#00aaee at:<[point]>
+                - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
+                - if <[target].any>:
+                    - flag <player> ov.sojourn.charge:<player.flag[ov.sojourn.charge].add[5].min[100]>
+                    - hurt 9 <[target]> source:<player>
+                - run ov_sojourn_railgun_display
+            - wait 5t
 
     secondary_fire:
-        #WIP
+        # Single blast
+        - adjust <player> item_slot:1
+        - if <player.flag[ov.sojourn.charge]> > 0:
+            - define hand_pos <player.eye_location.below[0.2].right[0.4]>
+            - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air].above[0.2].right[0.4]||null>
+            - if <[hit]> != null:
+                - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
+                    - playeffect effect:redstone offset:0 special_data:0.4|#00bbee at:<[point]>
+                    - playeffect effect:redstone offset:0 special_data:0.4|#00aadd visibility:10000 at:<[point].points_around_x[radius=0.5;points=50]>
+                - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
+                - hurt <player.flag[ov.sojourn.charge].add[30]> <[target]> source:player
+                - flag <player> ov.sojourn.charge:0
+                - run ov_sojourn_railgun_display
 
     ability_1:
         #WIP
@@ -39,10 +64,15 @@ ov_sojourn:
     ultimate:
         #WIP
 
+ov_sojourn_railgun_display:
+    type: task
+    debug: false
+    script:
+        - actionbar 'RAILGUN CHARGE: <player.flag[ov.sojourn.charge]>' targets:<player>
 
 ov_sojourn_disruptor_break:
     type: task
-    debug: true
+    debug: false
     definitions: point
     script:
         - repeat 9:
