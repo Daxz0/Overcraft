@@ -257,6 +257,7 @@ ov_ashe_offthread_knockback:
     definitions: target
     script:
         - adjust <[target]> velocity:<[target].location.sub[<[target].location.forward_flat[2]>]>
+
 ov_ashe_offthread_burn:
     type: task
     debug: false
@@ -264,6 +265,7 @@ ov_ashe_offthread_burn:
     script:
         - repeat 5:
             - hurt 20 <[target]> source:<player>
+            - playsound <player.location> sound:block_campfire_crackle pitch:1.0
             - flag <player> ov.match.data.burning
             - wait 1s
 
