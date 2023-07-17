@@ -14,6 +14,7 @@ ov_weapon_handle:
 
         on player right clicks block with:item_flagged:secondary:
             - determine passively cancelled
+            - stop if:<context.item.has_flag[ability]>
             - if <player.has_flag[ov.match.data.scoped]>:
                 - stop
             - run <context.item.flag[secondary]>.secondary_fire
@@ -22,6 +23,8 @@ ov_weapon_handle:
             - define item <player.inventory.slot[<context.new_slot>]>
             - determine passively cancelled
 
+            - if <[item].has_flag[secondary]>:
+                - run <[item].flag[ability_1]>.secondary
             - if <[item].has_flag[ability_1]>:
                 - run <[item].flag[ability_1]>.ability_1
             - if <[item].has_flag[ability_2]>:
