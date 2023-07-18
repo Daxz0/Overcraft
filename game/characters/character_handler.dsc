@@ -64,6 +64,24 @@ ov_cooldown_countdown:
         - wait <[cooldown]>
         - inventory set slot:<[slot]> o:<[item]>
 
+ov_projectile_handler:
+    type: task
+    debug: false
+    definitions: hit|speed|task|otherLoc
+    script:
+        - if !<[otherLoc].exists>:
+            - define start <[otherLoc]>
+        - else:
+            - define start <player.eye_location.forward[1]>
+
+        - define beam <[start].points_between[<[hit]>].distance[0.1]>
+
+        - define waitTime <[speed].div[1]>
+
+        - foreach <[beam]> as:point:
+            - run <[task]> def:<[point]>
+            - wait <[waitTime]>
+
 
 
 
