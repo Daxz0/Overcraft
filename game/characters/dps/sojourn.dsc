@@ -36,7 +36,6 @@ ov_sojourn:
 
     secondary_fire:
         # Single blast
-        - adjust <player> item_slot:1
         - if <player.flag[ov.sojourn.charge]> > 0:
             - define hand_pos <player.eye_location.below[0.2].right[0.4]>
             - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air].above[0.2].right[0.4]||null>
@@ -110,6 +109,7 @@ ov_sojourn_railgun_blast:
 
     flags:
         secondary: ov_sojourn
+        ability: true
 
         spread: 0
 
