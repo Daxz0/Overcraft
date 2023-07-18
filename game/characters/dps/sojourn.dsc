@@ -67,7 +67,7 @@ ov_sojourn_railgun_display:
     type: task
     debug: false
     script:
-        - actionbar 'RAILGUN CHARGE: <player.flag[ov.sojourn.charge]>' targets:<player>
+        - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.sojourn.charge].div[100]> title:RAILGUN
 
 ov_sojourn_disruptor_break:
     type: task
