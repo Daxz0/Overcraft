@@ -276,7 +276,7 @@ ov_ashe_bob:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9213
+        custom_model_data: 9214
     flags:
         ability: true
         ultimate: ov_ashe
@@ -288,7 +288,7 @@ ov_ashe_dynamite:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9211
+        custom_model_data: 9212
     flags:
         ability: true
         ability_1: ov_ashe
@@ -299,7 +299,7 @@ ov_ashe_coach_gun:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9212
+        custom_model_data: 9213
     flags:
         ability: true
         ability_2: ov_ashe

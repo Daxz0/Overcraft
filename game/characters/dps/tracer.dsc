@@ -75,10 +75,7 @@ ov_tracer:
 
     ability_2:
         #recall
-        - define waitTime <element[1].div[<player.flag[ov.match.character.recall].size>]>
-        - foreach <player.flag[ov.match.character.recall]> as:point:
-            - teleport <player> <[point]>
-            - wait <[waitTime]>
+        - teleport <player> <player.flag[ov.match.character.recall.loc]>
 
 ov_tracer_recall_handler:
     type: world
@@ -86,12 +83,9 @@ ov_tracer_recall_handler:
     events:
         on delta time secondly every:3:
             - foreach <server.online_players_flagged[ov.match.character.name]> as:__player:
-                - if <player.flag[ov.match.character.name]> == tracer && !<player.has_flag[ov.match.character.recall]>:
-                    - flag <player> ov.match.character.recall:!
-                    - flag <player> ov.match.character.recall:->:<player.location> expire:3s
-        on player walks flagged:ov.match.character.name priority:2:
-            - if <player.flag[ov.match.character.name]> == tracer && !<player.has_flag[ov.match.character.recall]>:
-                - flag <player> ov.match.character.recall:->:<player.location>
+                - if <player.flag[ov.match.character.name]> == tracer:
+                    - flag <player> ov.match.character.recall.loc:<player.location> expire:3s
+                    - flag <player> ov.match.character.recall.hp:<player.flag[ov.match.data.health]> expire:3s
 
 
 
