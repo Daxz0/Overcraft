@@ -24,7 +24,7 @@ ov_weapon_handle:
             - determine passively cancelled
 
             - if <[item].has_flag[secondary]>:
-                - run <[item].flag[ability_1]>.secondary
+                - run <[item].flag[secondary]>.secondary
             - if <[item].has_flag[ability_1]>:
                 - run <[item].flag[ability_1]>.ability_1
             - if <[item].has_flag[ability_2]>:
