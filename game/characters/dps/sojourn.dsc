@@ -56,13 +56,16 @@ ov_sojourn:
         # Powerslide
         - create silverfish powerslide_stand <player.location> save:powerslide_stand
         - invisible <entry[powerslide_stand].created_npc> true
-        - adjust <entry[powerslide_stand].created_npc> visible:true
+        - adjust <entry[powerslide_stand].created_npc> visible:false
+        - adjust <entry[powerslide_stand].created_npc> has_friction:false
         - flag <player> ov.sojourn.jumpused:false
         - flag <player> ov.sojourn.jumpnpc:<entry[powerslide_stand].created_npc>
-        - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[3]>
+        - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
         - mount <player>|<entry[powerslide_stand].created_npc>
-        - wait 22t
+        - wait 19t
+        - define npc_velocity <entry[powerslide_stand].created_npc.velocity>
         - remove <entry[powerslide_stand].created_npc>
+        - adjust <player> velocity:<[npc_velocity]>
         - flag <player> ov.sojourn.jumpused:false
 
     ability_2:
@@ -91,7 +94,7 @@ ov_sojourn_powerslide_jump_handler:
         on player steers entity:
             - if <context.jump>:
                 - if !<player.flag[ov.sojourn.jumpused]>:
-                    - adjust <player.flag[ov.sojourn.jumpnpc]> velocity:<player.flag[ov.sojourn.jumpnpc].velocity.with_pitch[0].mul[3].add[0,1.3,0]>
+                    - adjust <player.flag[ov.sojourn.jumpnpc]> velocity:<player.flag[ov.sojourn.jumpnpc].velocity.with_pitch[0].mul[1.2].add[0,1.3,0]>
                     - flag <player> ov.sojourn.jumpused:true
 
 ov_sojourn_railgun_display:
