@@ -47,6 +47,10 @@ ov_sojourn:
                 - hurt <player.flag[ov.sojourn.charge].add[30]> <[target]> source:player
                 - flag <player> ov.sojourn.charge:0
                 - run ov_sojourn_railgun_display
+            - if <player.flag[ov.sojourn.overclocked]>:
+                - wait 0.75s
+                - flag <player> ov.sojourn.charge:100
+                - run ov_sojourn_railgun_display
 
     ability_1:
         #WIP
@@ -61,13 +65,22 @@ ov_sojourn:
         - run ov_sojourn_disruptor_break def:<[end_point]>
 
     ultimate:
-        #WIP
+        # Overclock
+        - flag <player> ov.sojourn.overclocked:true
+        - run ov_sojourn_railgun_display
+        - flag <player> ov.sojourn.charge:100
+        - wait 8s
+        - flag <player> ov.sojourn.overclocked:false
+        - bossbar auto <player.name>_charge color:white
 
 ov_sojourn_railgun_display:
     type: task
     debug: false
     script:
-        - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.sojourn.charge].div[100]> title:RAILGUN
+        - if <player.flag[ov.sojourn.overclocked]> != true:
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.sojourn.charge].div[100]> title:RAILGUN color:white
+        - else:
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.sojourn.charge].div[100]> title:RAILGUN color:blue
 
 ov_sojourn_disruptor_break:
     type: task
