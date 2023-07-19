@@ -5,6 +5,8 @@ ov_tracer_data:
     data_name: tracer
     primary_fire: ov_tracer_pistols
 
+    akimbo: true
+
     ability_1: ov_tracer_blink
     ability_2: ov_tracer_recall
     ultimate: ov_tracer_pulse_bomb
@@ -28,7 +30,7 @@ ov_tracer:
         - define spread 3.6
         - define range 20
 
-        - define beam <proc[ov_bullet_spread_calc].context[<[range]>|<[spread]>|4]>
+        - define beam <proc[ov_bullet_spread_calc].context[<[range]>|<[spread]>|2]>
 
         - foreach <[beam]> as:b:
 

@@ -14,6 +14,40 @@ ov_health_handler:
             - run ov_health_handler.hurt_sound
             - run ov_health_handler.hurt_overlay
 
+        on player damages entity:
+            - define target <context.entity>
+            - define hp <[target].flag[ov.match.data.health].if_null[<[target].health>].round>
+            - define mhp <[target].flag[ov.match.data.maxhealth].if_null[<[target].health_max>].round>
+
+            - definemap progressbar:
+                element: "❚"
+                color: <&c>
+                barColor: <gray>
+                size: <[mhp].div[10]>
+                currentValue: <[hp]>
+                maxValue: <[mhp]>
+
+            - if !<[target].has_flag[ov.match.displayed]>:
+                - spawn text_display[text=<[progressbar].proc[progressbar]>;pivot=center] <[target].eye_location.above[0.8]> save:text
+                - attach <entry[text].spawned_entity> to:<[target]>
+                - flag <[target]> ov.match.displayed:<entry[text].spawned_entity>
+            - else:
+                - adjust <[target].flag[ov.match.displayed]> text:<[progressbar].proc[progressbar]>
+
+            - repeat 25:
+                - if !<[target].is_spawned> && <[target].flag[ov.match.displayed].is_spawned.if_null[false]>:
+                    - remove <[target].flag[ov.match.displayed]>
+                    - if <[target].is_player>:
+                        - flag <[target]> ov.match.displayed:!
+                    - stop
+
+                - wait 5t
+
+            - if <[target].has_flag[ov.match.displayed]> && <[target].flag[ov.match.displayed].is_spawned.if_null[false]>:
+                - remove <[target].flag[ov.match.displayed]>
+                - flag <[target]> ov.match.displayed:!
+
+
     hurt_overlay:
         - worldborder <player> warningdistance:<util.int_max.div[50]>
         - wait 5t

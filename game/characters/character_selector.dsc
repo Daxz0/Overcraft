@@ -25,7 +25,7 @@ ov_character_selector_ui_dps:
     definitions:
         p: ui_pane
     procedural items:
-        - define list <list[ashe|tracer|sojourn].alphabetical>
+        - define list <list[ashe|tracer|bastion|sojourn].alphabetical>
         - define determin <list>
         - foreach <[list]> as:item:
             - define determin:->:ov_<[item]>_icon
@@ -50,6 +50,7 @@ ov_character_selector_ui_handler:
             - define ability1 <[data].data_key[ability_1].if_null[air]>
             - define ability2 <[data].data_key[ability_2].if_null[air]>
             - define ult <[data].data_key[ultimate].if_null[air]>
+            - define akimbo <[data].data_key[akimbo].if_true[<[primary]>].if_false[air]>
 
 
             - inventory set o:<[primary]> slot:1
@@ -57,6 +58,7 @@ ov_character_selector_ui_handler:
             - inventory set o:<[ability1]> slot:4
             - inventory set o:<[ability2]> slot:6
             - inventory set o:<[ult]> slot:8
+            - inventory set o:<[akimbo]> slot:41
 
 
 ov_tank_icon:
@@ -94,6 +96,13 @@ ov_tracer_icon:
     display name: <&f>Tracer
     flags:
         data: ov_tracer_data
+
+ov_bastion_icon:
+    type: item
+    material: light_blue_stained_glass_pane
+    display name: <&f>Bastion
+    flags:
+        data: ov_bastion_data
 
 ov_sojourn_icon:
     type: item
