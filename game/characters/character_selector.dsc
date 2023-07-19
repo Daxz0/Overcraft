@@ -50,6 +50,7 @@ ov_character_selector_ui_handler:
             - define ability1 <[data].data_key[ability_1].if_null[air]>
             - define ability2 <[data].data_key[ability_2].if_null[air]>
             - define ult <[data].data_key[ultimate].if_null[air]>
+            - define akimbo <[data].data_key[akimbo].if_true[<[primary]>].if_false[air]>
 
 
             - inventory set o:<[primary]> slot:1
@@ -57,6 +58,7 @@ ov_character_selector_ui_handler:
             - inventory set o:<[ability1]> slot:4
             - inventory set o:<[ability2]> slot:6
             - inventory set o:<[ult]> slot:8
+            - inventory set o:<[akimbo]> slot:41
 
 
 ov_tank_icon:

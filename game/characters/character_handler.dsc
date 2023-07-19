@@ -38,10 +38,6 @@ ov_weapon_handle:
             - flag <player> ov.match.data.scoped expire:<player.item_in_hand.flag[scopeTime]>
         on player holds item item:item_flagged:!scope:
             - adjust <player> fov_multiplier:0
-        on player holds item item:item_flagged:akimbo:
-            - inventory set o:<player.item_in_hand> slot:41
-        on player holds item item:item_flagged:!akimbo:
-            - inventory set o:air slot:41
 
         on player scrolls their hotbar:
             - define list <list[1|2|4|6|8]>
