@@ -35,7 +35,7 @@ ov_health_handler:
                 - adjust <[target].flag[ov.match.displayed]> text:<[progressbar].proc[progressbar]>
 
             - repeat 25:
-                - if !<[target].is_spawned> && <[target].flag[ov.match.displayed].is_spawned>:
+                - if !<[target].is_spawned> && <[target].flag[ov.match.displayed].is_spawned.if_null[false]>:
                     - remove <[target].flag[ov.match.displayed]>
                     - if <[target].is_player>:
                         - flag <[target]> ov.match.displayed:!
@@ -43,7 +43,7 @@ ov_health_handler:
 
                 - wait 5t
 
-            - if <[target].has_flag[ov.match.displayed]>:
+            - if <[target].has_flag[ov.match.displayed]> && <[target].flag[ov.match.displayed].is_spawned.if_null[false]>:
                 - remove <[target].flag[ov.match.displayed]>
                 - flag <[target]> ov.match.displayed:!
 
