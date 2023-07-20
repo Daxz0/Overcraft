@@ -54,23 +54,32 @@ ov_sojourn:
 
     ability_1:
         # Powerslide
-        - create silverfish powerslide_stand <player.location> save:powerslide_stand
+        - create silverfish[visible=false] powerslide_stand <player.location> save:powerslide_stand
         - invisible <entry[powerslide_stand].created_npc> true
-        - adjust <entry[powerslide_stand].created_npc> visible:false
         - adjust <entry[powerslide_stand].created_npc> has_friction:false
         - flag <player> ov.sojourn.jumpused:false
+        - flag <player> ov.sojourn.slide.queue:<queue>
         - flag <player> ov.sojourn.jumpnpc:<entry[powerslide_stand].created_npc>
         - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
         - mount <player>|<entry[powerslide_stand].created_npc>
-        - wait 19t
+        - run ov_sojourn_jump_detection
+        - wait 16t
+        - define player_location <player.location.add[0,0.2,0]>
+        - wait 3t
         - define npc_velocity <entry[powerslide_stand].created_npc.velocity>
+        - mount cancel <player>
         - remove <entry[powerslide_stand].created_npc>
-        - adjust <player> velocity:<[npc_velocity]>
+        - if <player.flag[ov.sojourn.jumpused]>:
+            - adjust <player> velocity:<[npc_velocity]>
+        - else:
+            - teleport <player> <[player_location]>
         - flag <player> ov.sojourn.jumpused:false
+        - flag <player> ov.sojourn.slide.queue:!
+        - flag <player> ov.sojourn.jumpnpc:!
 
     ability_2:
         # Disruptor
-        - define start_point <player.eye_location>
+        - define start_point <player.eye_location.forward_flat[0.3]>
         - define end_point <[start_point].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]||null>
         - spawn snowball[item=ov_sojourn_disruptor] save:disruptor <[start_point]>
         - flag <entry[disruptor].spawned_entity> disruptor
@@ -80,12 +89,26 @@ ov_sojourn:
     ultimate:
         # Overclock
         - flag <player> ov.sojourn.overclocked:true
-        - run ov_sojourn_railgun_display
         - flag <player> ov.sojourn.charge:100
+        - run ov_sojourn_railgun_display
         - wait 8s
         - flag <player> ov.sojourn.overclocked:false
         - bossbar auto <player.name>_charge color:white
 
+
+ov_sojourn_jump_detection:
+    type: task
+    debug: false
+    script:
+        - while <player.has_flag[ov.sojourn.jumpnpc].if_null[false]>:
+            - if <player.eye_location.find_blocks[!air].within[0.5].any>:
+                - queue <queue[<player.flag[ov.sojourn.slide.queue]>]> stop
+                - remove <player.flag[ov.sojourn.jumpnpc]>
+                - teleport <player> <player.location.below[1]>
+                - flag <player> ov.sojourn.jumpnpc:!
+                - flag <player> ov.sojourn.slide.queue:!
+                - stop
+            - wait 1t
 
 ov_sojourn_powerslide_jump_handler:
     type: world
