@@ -134,8 +134,12 @@ ov_sojourn_disruptor_break:
     debug: false
     definitions: point
     script:
-        - repeat 9:
+        - define orb <[point].to_ellipsoid[5,5,5]>
+        - repeat 16:
+            - playeffect effect:redstone offset:0 special_data:0.9|#0000ff visibility:10000 at:<[orb].shell>
             - playeffect effect:sonic_boom at:<[point]> visibility:10000
+            - cast slow duration:0.3s amplifier:2 <[orb].entities[player]>
+            - wait 0.25s
 
 ov_sojourn_railgun_rapid:
     type: item
