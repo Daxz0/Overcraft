@@ -25,7 +25,7 @@ ov_character_selector_ui_dps:
     definitions:
         p: ui_pane
     procedural items:
-        - define list <list[ashe|tracer|bastion].alphabetical>
+        - define list <list[ashe|tracer|bastion|sojourn].alphabetical>
         - define determin <list>
         - foreach <[list]> as:item:
             - define determin:->:ov_<[item]>_icon
@@ -103,3 +103,10 @@ ov_bastion_icon:
     display name: <&f>Bastion
     flags:
         data: ov_bastion_data
+
+ov_sojourn_icon:
+    type: item
+    material: light_blue_stained_glass_pane
+    display name: <&f>Sojourn
+    flags:
+        data: ov_sojourn_data
