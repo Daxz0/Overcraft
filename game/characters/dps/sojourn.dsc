@@ -221,7 +221,7 @@ ov_sojourn_powerslide:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9411
+        custom_model_data: 9224
     flags:
         ability: true
         ability_1: ov_sojourn
@@ -233,7 +233,7 @@ ov_sojourn_disruptor:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9412
+        custom_model_data: 9225
     flags:
         ability: true
         ability_2: ov_sojourn
@@ -254,4 +254,4 @@ ov_sojourn_disruptor_model:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9413
+        custom_model_data: 9226

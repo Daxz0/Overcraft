@@ -73,8 +73,9 @@ ov_character_selector_ui_handler:
             - define ability1 <[data].data_key[ability_1].if_null[air]>
             - define ability2 <[data].data_key[ability_2].if_null[air]>
             - define ult <[data].data_key[ultimate].if_null[air]>
-            - define akimbo <[data].data_key[akimbo].if_true[<[primary]>].if_false[air]>
+            - define akimbo <[data].data_key[akimbo].if_true[<[primary]>].if_false[air].if_null[air]>
 
+            - bossbar remove <player.name>_charge
 
             - inventory set o:<[primary]> slot:1
             - inventory set o:<[secondary]> slot:2

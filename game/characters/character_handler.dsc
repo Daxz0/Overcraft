@@ -43,6 +43,8 @@ ov_weapon_handle:
             - define list <list[1|2|4|6|8]>
             - if !<[list].contains[<context.new_slot>]>:
                 - determine passively cancelled
+        on silverfish targets entity:
+            - determine cancelled
 
 ov_cooldown:
     type: item
