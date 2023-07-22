@@ -145,7 +145,7 @@ ov_sojourn_disruptor_break:
     debug: false
     definitions: point
     script:
-        - repeat 5:
+        - repeat 16:
             - define circ <location[0,0,0].points_around_x[radius=3;points=40]>
             - define circls <list[]>
             - repeat 30:
