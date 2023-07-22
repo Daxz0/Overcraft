@@ -200,7 +200,7 @@ ov_sojourn_overclock:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9410
     flags:
         ability: true
         ultimate: ov_sojourn
@@ -211,7 +211,7 @@ ov_sojourn_powerslide:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9411
     flags:
         ability: true
         ability_1: ov_sojourn
@@ -223,7 +223,7 @@ ov_sojourn_disruptor:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9412
     flags:
         ability: true
         ability_2: ov_sojourn
