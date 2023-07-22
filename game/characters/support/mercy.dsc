@@ -44,23 +44,37 @@ ov_mercy_flightnpc_handler:
                         - flag <player> ov.match.character.flynpc:<entry[fly_stand].created_npc>
                         - equip <entry[fly_stand].created_npc> saddle:saddle
                         - mount <player>|<entry[fly_stand].created_npc>
+                    - if !<player.has_flag[ov.match.character.jumpheld].if_null[false]> || <player.flag[ov.match.character.jumpheld]> == null:
+                        - flag <player> ov.match.character.jumpheld:false
+                    - if !<player.flag[ov.match.character.jumpheld]>:
+                        - cast slow_falling remove duration:1s <player.flag[ov.match.character.flynpc]>
 
 
 ov_mercy_flight_handler:
     type: world
     debug: false
     events:
-        tick:
-            - if <player.flag[ov.match.character.name]> == mercy:
-                - if <player.flag[ov.match.character.flynpc].is_on_ground>:
-                    - cast slow_falling remove duration:1s <player.flag[ov.match.character.flynpc]>
+        on tick:
+            - foreach <server.online_players_flagged[ov.match.character.name]> as:__player:
+                - if <player.flag[ov.match.character.name]> == mercy:
+                    - if <player.flag[ov.match.character.flynpc].is_on_ground>:
+                        - cast slow_falling remove duration:1s <player.flag[ov.match.character.flynpc]>
         on player steers entity:
             - if <player.flag[ov.match.character.name]> == mercy:
                 - if <context.jump>:
+                    - flag <player> ov.match.character.jumpheld:true expire:2t
                     - if <player.flag[ov.match.character.flynpc].is_on_ground>:
-                        - adjust <player.flag[ov.match.character.flynpc]> velocity:<player.flag[ov.match.character.flynpc].velocity.add[0,0.6,0]>
+                        - adjust <player.flag[ov.match.character.flynpc]> velocity:<player.flag[ov.match.character.flynpc].velocity.with_y[0.6]>
                     - else:
                         - cast slow_falling duration:1s <player.flag[ov.match.character.flynpc]>
+                - else:
+                    - cast slow_falling remove duration:1s <player.flag[ov.match.character.flynpc]>
+                    - flag <player> ov.match.character.jumpheld:false
+            #THANK YOU COLOSSAL
+            - define velocity <location[0,0,0].with_pose[<player>].forward[<context.forward>].left[<context.sideways>].normalize>
+            - define velocity <[velocity].mul[0.65].with_y[<player.flag[ov.match.character.flynpc].velocity.y>]>
+            - adjust <player.flag[ov.match.character.flynpc]> velocity:<[velocity]>
+
 
         on player exits entity:
             - if <player.flag[ov.match.character.name]> == mercy:
