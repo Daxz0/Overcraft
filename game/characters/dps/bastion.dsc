@@ -11,6 +11,7 @@ ov_bastion_data:
 
     ammo: 25
 
+#TODO add damage resist 20%
 ov_bastion:
     type: task
     debug: false
@@ -42,9 +43,10 @@ ov_bastion:
 
                 - playeffect effect:redstone offset:0 special_data:0.4|#d1d1d1 at:<[b]> visibility:10000
         - if <player.item_in_hand.script.name> == ov_bastion_assault:
+            #dont consume ammo
             - define loc <player.eye_location>
 
-            - define spread 0
+            - define spread 2
             - define range 50
 
             - define beam <proc[ov_bullet_spread_calc].context[<[range]>|<[spread]>|2]>
@@ -69,7 +71,14 @@ ov_bastion:
 
     ability:1:
         #reconfigure
-        - inventory set slot:1 o:
+        - if !<player.has_flag[ov.match.character.configure]>:
+            - inventory set slot:1 o:ov_bastion_assault
+            - flag <player> ov.match.character.configure
+            - cast slow d:-1t amplifier:1 no_icon hide_particles
+        - else:
+            - flag <player> ov.match.character.configure:!
+            - inventory set slot:1 o:ov_bastion_recon
+            - cast slow remove
 
 ov_bastion_bounce:
     type: task
@@ -137,6 +146,23 @@ ov_bastion_bounce:
         - define entity <entry[grenade].spawned_entity>
         - adjust <[entity]> velocity:<[velocity].mul[0.5]>
         - run ov_bastion_bounce def.entity:<[entity]> def.bounces:<[bounces]>
+    ultimate:
+        - create player <player.name> save:playerReplc
+        - spawn <entry[playerReplc].created_npc> save:npc
+
+        - flag <player> ov.match.character.artillery
+        - cast invisibility <player> d:-1 no_icon hide_particles
+
+ov_bastion_handler:
+    type: world
+    debug: false
+    events:
+        on player breaks block flagged:ov.match.character.artillery:
+            - determine passively cancelled
+        on player right clicks block flagged:ov.match.character.artillery:
+            - determine passively cancelled
+        on player damages entity flagged:ov.match.character.artillery:
+            - determine passively cancelled
 
 ov_bastion_recon:
     type: item
@@ -189,3 +215,25 @@ ov_bastion_grenade:
     flags:
         ability: true
         secondary: ov_bastion
+
+ov_bastion_reconfigure:
+    type: item
+    display name: <&f>Reconfigure
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9221
+    flags:
+        ability: true
+        ability_1: ov_bastion
+
+ov_bastion_artillery:
+    type: item
+    display name: <&f>Artillery
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9222
+    flags:
+        ability: true
+        ultimate: ov_bastion
