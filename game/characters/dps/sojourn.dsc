@@ -149,9 +149,7 @@ ov_sojourn_disruptor_break:
             - playeffect effect:redstone offset:0 special_data:0.9|#0000ff visibility:10000 at:<[orb].shell>
             - playeffect effect:sonic_boom at:<[point]> visibility:10000
             #- cast slow duration:0.3s amplifier:2 <[orb].entities[player]>
-
-            - hurt 13.125 <[orb].entities[player]> cause:<player>
-
+            - hurt 13.125 <[orb].entities[player]> source:<player>
             - wait 0.25s
 
 ov_sojourn_railgun_rapid:
