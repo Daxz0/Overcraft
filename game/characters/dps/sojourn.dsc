@@ -135,9 +135,9 @@ ov_sojourn_railgun_display:
     debug: false
     script:
         - if <player.has_flag[ov.match.character.overclocked]>:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:RAILGUN color:white
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:white
         - else:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:RAILGUN color:blue
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:blue
 
 ov_sojourn_disruptor_break:
     type: task
