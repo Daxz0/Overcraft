@@ -6,7 +6,7 @@ ov_bastion_data:
     primary_fire: ov_bastion_recon
     secondary_fire: ov_bastion_grenade
 
-    ability_1: ov_bastion_assault
+    ability_1: ov_bastion_reconfigure
     ultimate: ov_bastion_artillery
 
     ammo: 25
