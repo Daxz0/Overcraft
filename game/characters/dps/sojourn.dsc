@@ -94,11 +94,11 @@ ov_sojourn:
 
     ultimate:
         # Overclock
-        - flag <player> ov.match.character.overclocked:true
+        - flag <player> ov.match.character.overclocked
         - flag <player> ov.match.character.charge:100
         - run ov_sojourn_railgun_display
         - wait 8s
-        - flag <player> ov.match.character.overclocked:false
+        - flag <player> ov.match.character.overclocked:!
         - bossbar auto <player.name>_charge color:white
 
 
@@ -135,10 +135,10 @@ ov_sojourn_railgun_display:
     type: task
     debug: false
     script:
-        - if <player.has_flag[ov.match.character.overclocked]>:
+        - if !<player.has_flag[ov.match.character.overclocked]>:
             - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:white
         - else:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:blue
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&b><&l><player.flag[ov.match.character.charge]><&b>/100 color:blue
 
 ov_sojourn_disruptor_break:
     type: task
