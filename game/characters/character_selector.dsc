@@ -38,6 +38,29 @@ ov_character_selector_ui_dps:
         - [p] [] [] [] [] [] [] [] [p]
         - [p] [p] [p] [p] [p] [p] [p] [p] [p]
 
+ov_character_selector_ui_support:
+    type: inventory
+    debug: false
+    title: <&4><&o><&l>SELECT YOUR CHARACTER
+    gui: true
+    inventory: chest
+    size: 54
+    definitions:
+        p: ui_pane
+    procedural items:
+        - define list <list[].alphabetical>
+        - define determin <list>
+        - foreach <[list]> as:item:
+            - define determin:->:ov_<[item]>_icon
+        - determine <[determin]>
+    slots:
+        - [p] [p] [p] [p] [p] [p] [p] [p] [p]
+        - [p] [] [] [] [] [] [] [] [p]
+        - [p] [] [] [] [] [] [] [] [p]
+        - [p] [] [] [] [] [] [] [] [p]
+        - [p] [] [] [] [] [] [] [] [p]
+        - [p] [p] [p] [p] [p] [p] [p] [p] [p]
+
 ov_character_selector_ui_handler:
     type: world
     debug: false
