@@ -87,7 +87,7 @@ ov_sojourn:
         # Disruptor
         - define start_point <player.eye_location.forward_flat[0.3]>
         - define end_point <[start_point].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]||null>
-        - spawn snowball[item=ov_sojourn_disruptor] save:disruptor <[start_point]>
+        - spawn snowball[item=ov_sojourn_disruptor_model] save:disruptor <[start_point]>
         - flag <entry[disruptor].spawned_entity> disruptor
         - ~push <entry[disruptor].spawned_entity> origin:<[start_point]> destination:<[end_point]> no_rotate
         - run ov_sojourn_disruptor_break def:<[end_point]>
@@ -204,7 +204,7 @@ ov_sojourn_overclock:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9410
     flags:
         ability: true
         ultimate: ov_sojourn
@@ -215,7 +215,7 @@ ov_sojourn_powerslide:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9411
     flags:
         ability: true
         ability_1: ov_sojourn
@@ -227,7 +227,7 @@ ov_sojourn_disruptor:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9999
+        custom_model_data: 9412
     flags:
         ability: true
         ability_2: ov_sojourn
@@ -241,3 +241,11 @@ ov_sojourn_disruptor:
         minDistance: 1
 
         headshotMul: 1
+
+ov_sojourn_disruptor_model:
+    type: item
+    display name: <&f>Disruptor
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9413
