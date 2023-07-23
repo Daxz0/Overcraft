@@ -74,8 +74,8 @@ ov_sojourn:
         - flag <player> ov.match.character.slidenpc:<entry[playerNPC].created_npc>
         - define entry <player.location>
         - flag <player> ov.match.character.jumpused:<[entry]>
-        - wait 2t
-        - if <[entry].distance[<player.location>]> < 0.3:
+        - wait 1t
+        - if <[entry].distance[<player.location>]> < 0.2:
             - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
         - else:
             - adjust <entry[powerslide_stand].created_npc> velocity:<player.location.sub[<[entry]>].mul[3]>
@@ -143,8 +143,8 @@ ov_sojourn_powerslide_jump_handler:
         on player steers entity:
             - if <context.jump>:
                 - if <player.has_flag[ov.match.character.jumpused]>:
-                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.mul[0.9].add[0,0.5,0]>
-                    - flag <player> ov.match.character.jumpused:true
+                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.add[0,0.8,0]>
+                    - flag <player> ov.match.character.jumpused:!
 
 ov_sojourn_railgun_display:
     type: task
