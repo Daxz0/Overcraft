@@ -42,8 +42,18 @@ ov_sojourn:
             - if <[hit]> != null:
                 - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
                     - playeffect effect:redstone offset:0 special_data:0.4|#00bbee at:<[point]>
-                    #TODO: fix this
-                    - playeffect effect:redstone offset:0 special_data:0.4|#00aadd visibility:10000 at:<[point].points_around_x[radius=0.5;points=50]>
+                    - definemap data:
+                        location: <[point].with_pitch[<player.location.pitch.add[90]>].with_yaw[<player.location.yaw>]>
+                        radius: 0.5
+                        rotation: 0
+                        points: 10
+                        arc: 360
+                    - define locations:->:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
+                    - foreach <[locations]> as:point:
+                        - playeffect effect:redstone offset:0 special_data:0.6|#00aadd visibility:10000 at:<[point]>
+                    - define locations <[point]>
+                    - if <[loop_index].mod[5]> == 0:
+                        - wait 1t
                 - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
                 - hurt <player.flag[ov.match.character.charge].add[30]> <[target]> source:player
                 - flag <player> ov.match.character.charge:0
@@ -59,11 +69,16 @@ ov_sojourn:
         - create player <player.name> save:playerNPC <player.location>
         - invisible <entry[powerslide_stand].created_npc> true
         - adjust <entry[powerslide_stand].created_npc> has_friction:false
-        - flag <player> ov.match.character.jumpused:false
         - flag <player> ov.match.character.slide.queue:<queue>
         - flag <player> ov.match.character.jumpnpc:<entry[powerslide_stand].created_npc>
         - flag <player> ov.match.character.slidenpc:<entry[playerNPC].created_npc>
-        - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
+        - define entry <player.location>
+        - flag <player> ov.match.character.jumpused:<[entry]>
+        - wait 1t
+        - if <[entry].distance[<player.location>]> < 0.2:
+            - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
+        - else:
+            - adjust <entry[powerslide_stand].created_npc> velocity:<player.location.sub[<[entry]>].mul[3]>
         - mount <player>|<entry[powerslide_stand].created_npc>
         - cast invisibility <player> d:10s no_icon hide_particles
         - run ov_sojourn_jump_detection
@@ -76,7 +91,7 @@ ov_sojourn:
             - adjust <player> velocity:<[npc_velocity]>
         - else:
             - teleport <player> <[player_location]>
-        - flag <player> ov.match.character.jumpused:false
+        - flag <player> ov.match.character.jumpused:!
         - flag <player> ov.match.character.slide.queue:!
         - flag <player> ov.match.character.jumpnpc:!
         - remove <player.flag[ov.match.character.slidenpc]>
@@ -99,7 +114,7 @@ ov_sojourn:
         - run ov_sojourn_railgun_display
         - wait 8s
         - flag <player> ov.match.character.overclocked:!
-        - bossbar auto <player.name>_charge color:white
+        - bossbar auto <player.uuid>_charge color:white
 
 
 ov_sojourn_jump_detection:
@@ -108,7 +123,7 @@ ov_sojourn_jump_detection:
     script:
         - while <player.has_flag[ov.match.character.jumpnpc].if_null[false]>:
             - teleport <player.flag[ov.match.character.slidenpc]> <player.flag[ov.match.character.jumpnpc].location>
-            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.left[0.5]>
+            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].yaw>].left[0.5]>
             - sleep npc:<player.flag[ov.match.character.slidenpc]>
             - if <player.eye_location.find_blocks[!air].within[0.5].any>:
                 - queue <queue[<player.flag[ov.match.character.slide.queue]>]> stop
@@ -127,18 +142,18 @@ ov_sojourn_powerslide_jump_handler:
     events:
         on player steers entity:
             - if <context.jump>:
-                - if !<player.flag[ov.match.character.jumpused]>:
-                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.with_pitch[0].mul[1.2].add[0,1.3,0]>
-                    - flag <player> ov.match.character.jumpused:true
+                - if <player.has_flag[ov.match.character.jumpused]>:
+                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.add[0,0.8,0]>
+                    - flag <player> ov.match.character.jumpused:!
 
 ov_sojourn_railgun_display:
     type: task
     debug: false
     script:
         - if !<player.has_flag[ov.match.character.overclocked]>:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:white
+            - bossbar auto <player.uuid>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:white
         - else:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&b><&l><player.flag[ov.match.character.charge]><&b>/100 color:blue
+            - bossbar auto <player.uuid>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&b><&l><player.flag[ov.match.character.charge]><&b>/100 color:blue
 
 ov_sojourn_disruptor_break:
     type: task
@@ -155,7 +170,7 @@ ov_sojourn_disruptor_break:
             - playeffect effect:redstone offset:0.1 special_data:1|#0000ff visibility:10000 at:<[circls]>
             - playeffect effect:sonic_boom at:<[point]> visibility:10000 offset:0.01
             #- cast slow duration:0.3s amplifier:2 <[orb].entities[player]>
-            - hurt 13.125 <[point].find_entities[living].within[5]> source:<player>
+            - hurt 13.125 <[point].find_entities[living].within[3]> source:<player>
             - wait 0.25s
 
 ov_sojourn_railgun_rapid:
@@ -210,7 +225,7 @@ ov_sojourn_overclock:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9410
+        custom_model_data: 9227
     flags:
         ability: true
         ultimate: ov_sojourn

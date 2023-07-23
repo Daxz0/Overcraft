@@ -82,7 +82,7 @@ ov_bastion:
 
             - mount <player>|<entry[stand].spawned_entity>
             - repeat 6 from:0:
-                - bossbar auto <player.name>_configure players:<player> progress:<element[6].sub[<[value]>].div[6]> "title:<&f><&l><element[6].sub[<[value]>]><&f>/6 seconds" color:white
+                - bossbar auto <player.uuid>_configure players:<player> progress:<element[6].sub[<[value]>].div[6]> "title:<&f><&l><element[6].sub[<[value]>]><&f>/6 seconds" color:white
                 - if !<player.has_flag[ov.match.character.configure]>:
                     - repeat stop
                 - wait 1s
@@ -92,10 +92,10 @@ ov_bastion:
                 - flag <player> ov.match.character.configure:!
                 - inventory set slot:1 o:ov_bastion_recon
                 - cast slow remove
-                - bossbar remove <player.name>_configure
+                - bossbar remove <player.uuid>_configure
 
         - else:
-            - bossbar remove <player.name>_configure
+            - bossbar remove <player.uuid>_configure
             - remove <player.flag[ov.match.character.configure]>
             - flag <player> ov.match.character.configure:!
             - inventory set slot:1 o:ov_bastion_recon
@@ -109,11 +109,11 @@ ov_bastion:
         - spawn armor_stand[gravity=false;visible=false] <[loc].above[3]> save:stand
         - mount <player>|<entry[stand].spawned_entity>
         - repeat 8 from:0:
-            - bossbar auto <player.name>_artillery players:<player> progress:<element[8].sub[<[value]>].div[8]> "title:<&f><&l><element[8].sub[<[value]>]><&f>/8 seconds" color:white
+            - bossbar auto <player.uuid>_artillery players:<player> progress:<element[8].sub[<[value]>].div[8]> "title:<&f><&l><element[8].sub[<[value]>]><&f>/8 seconds" color:white
             - if !<player.has_flag[ov.match.character.artillery]> || <player.flag[ov.match.character.artillery.count].if_null[0]> >= 3:
                 - repeat stop
             - wait 1s
-        - bossbar remove <player.name>_artillery
+        - bossbar remove <player.uuid>_artillery
         - flag <player> ov.match.character.artillery:!
         - teleport <player> <[loc]>
         - cast invisibility remove
