@@ -42,8 +42,18 @@ ov_sojourn:
             - if <[hit]> != null:
                 - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
                     - playeffect effect:redstone offset:0 special_data:0.4|#00bbee at:<[point]>
-                    #TODO: fix this
-                    - playeffect effect:redstone offset:0 special_data:0.4|#00aadd visibility:10000 at:<[point].points_around_x[radius=0.5;points=50]>
+                    - definemap data:
+                        location: <[point].with_pitch[<player.location.pitch.add[90]>].with_yaw[<player.location.yaw>]>
+                        radius: 0.5
+                        rotation: 0
+                        points: 10
+                        arc: 360
+                    - define locations:->:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
+                    - foreach <[locations]> as:point:
+                        - playeffect effect:redstone offset:0 special_data:0.6|#00aadd visibility:10000 at:<[point]>
+                    - define locations <[point]>
+                    - if <[loop_index].mod[5]> == 0:
+                        - wait 1t
                 - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
                 - hurt <player.flag[ov.match.character.charge].add[30]> <[target]> source:player
                 - flag <player> ov.match.character.charge:0
@@ -120,6 +130,19 @@ ov_sojourn_jump_detection:
                 - stop
             - wait 1t
         - remove <player.flag[ov.match.character.slidenpc]>
+
+test:
+    type: task
+    script:
+        - definemap data:
+            location: <player.eye_location.with_pitch[<player.location.pitch.add[90]>].with_yaw[<player.location.yaw>]>
+            radius: 1.5
+            rotation: 0
+            points: 360
+            arc: 360
+        - define locations:->:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine>
+        - foreach <[locations]> as:point:
+            - playeffect effect:redstone offset:0 special_data:0.4|#00aadd visibility:10000 at:<[point]>
 
 ov_sojourn_powerslide_jump_handler:
     type: world
@@ -210,7 +233,7 @@ ov_sojourn_overclock:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9410
+        custom_model_data: 9227
     flags:
         ability: true
         ultimate: ov_sojourn
