@@ -6,7 +6,7 @@ ov_bastion_data:
     primary_fire: ov_bastion_recon
     secondary_fire: ov_bastion_grenade
 
-    ability_1: ov_bastion_assault
+    ability_1: ov_bastion_reconfigure
     ultimate: ov_bastion_artillery
 
     ammo: 25
@@ -19,6 +19,7 @@ ov_bastion:
         - define characterName bastion
 
     primary_fire:
+        - stop if:<player.has_flag[ov.match.character.artillery]>
         - if <player.item_in_hand.script.name> == ov_bastion_recon:
             - ratelimit <player> 0.2
 
@@ -66,19 +67,114 @@ ov_bastion:
                 - playeffect effect:redstone offset:0 special_data:0.4|#d1d1d1 at:<[b]> visibility:10000
     secondary_fire:
         #grenade
+        - stop if:<player.has_flag[ov.match.character.artillery]>
         - shoot snowball origin:<player.eye_location.right[0.3].forward[1]> destination:<player.eye_location.right[0.3].forward[2]> speed:2 shooter:<player> spread:0 save:grenade
         - run ov_bastion_bounce def.entity:<entry[grenade].shot_entity>
 
-    ability:1:
+    ability_1:
         #reconfigure
+        - stop if:<player.has_flag[ov.match.character.artillery]>
         - if !<player.has_flag[ov.match.character.configure]>:
             - inventory set slot:1 o:ov_bastion_assault
-            - flag <player> ov.match.character.configure
-            - cast slow d:-1t amplifier:1 no_icon hide_particles
+            - cast slow d:-1t amplifier:2 no_icon hide_particles
+            - spawn silverfish[visible=false;invulnerable=true] <player.location> save:stand
+            - flag <player> ov.match.character.configure:<entry[stand].spawned_entity>
+
+            - mount <player>|<entry[stand].spawned_entity>
+            - repeat 6 from:0:
+                - bossbar auto <player.name>_configure players:<player> progress:<element[6].sub[<[value]>].div[6]> "title:<&f><&l><element[6].sub[<[value]>]><&f>/6 seconds" color:white
+                - if !<player.has_flag[ov.match.character.configure]>:
+                    - repeat stop
+                - wait 1s
+
+            - if <player.has_flag[ov.match.character.configure]>:
+                - remove <player.flag[ov.match.character.configure]>
+                - flag <player> ov.match.character.configure:!
+                - inventory set slot:1 o:ov_bastion_recon
+                - cast slow remove
+                - bossbar remove <player.name>_configure
+
         - else:
+            - bossbar remove <player.name>_configure
+            - remove <player.flag[ov.match.character.configure]>
             - flag <player> ov.match.character.configure:!
             - inventory set slot:1 o:ov_bastion_recon
             - cast slow remove
+    ultimate:
+        #artillery
+        - define loc <player.location>
+        - create player <player.name> save:npc <[loc]>
+        - cast invisibility d:8s <player> no_icon hide_particles
+        - flag <player> ov.match.character.artillery
+        - spawn armor_stand[gravity=false;visible=false] <[loc].above[3]> save:stand
+        - mount <player>|<entry[stand].spawned_entity>
+        - repeat 8 from:0:
+            - bossbar auto <player.name>_artillery players:<player> progress:<element[8].sub[<[value]>].div[8]> "title:<&f><&l><element[8].sub[<[value]>]><&f>/8 seconds" color:white
+            - if !<player.has_flag[ov.match.character.artillery]> || <player.flag[ov.match.character.artillery.count].if_null[0]> >= 3:
+                - repeat stop
+            - wait 1s
+        - bossbar remove <player.name>_artillery
+        - flag <player> ov.match.character.artillery:!
+        - teleport <player> <[loc]>
+        - cast invisibility remove
+        - remove <entry[stand].spawned_entity>
+        - remove <entry[npc].created_npc>
+
+
+ov_bastion_handler:
+    type: world
+    debug: false
+    events:
+        on player steers entity flagged:ov.match.character.configure:
+            - if <context.dismount>:
+                - determine cancelled
+            - define forward <context.forward>
+            - define side <context.sideways.div[10]>
+            - define stand <player.vehicle>
+            - define location <player.vehicle.location.with_pitch[<[stand].location.pitch>].forward[<[forward].div[10]>].with_y[<player.vehicle.location.y>]>
+            - if <[location].material.name> != air:
+                - define location <[location].above[0.25]>
+            - if <[side]> != 0:
+                - define side <[side].mul[-1]>
+                - define location <[location].right[<[side]>]>
+            - teleport <player.vehicle> <[location].with_pitch[0].with_yaw[<player.location.yaw>]>
+        on player steers entity flagged:ov.match.character.artillery:
+            - if <player.flag[ov.match.character.artillery.count].if_null[0]> >= 3:
+                - stop
+            - if <context.dismount>:
+                - determine cancelled
+            - define forward <context.forward>
+            - define side <context.sideways.div[2]>
+            - define stand <player.vehicle>
+            - define location <player.vehicle.location.with_pitch[<[stand].location.pitch>].forward[<[forward].div[2]>].with_y[<player.vehicle.location.y>]>
+            - if <[side]> != 0:
+                - define side <[side].mul[-1]>
+                - define location <[location].right[<[side]>]>
+            - define hit <player.vehicle.location.with_pitch[90].ray_trace[range=50].above[1.5].if_null[<player.vehicle.location>]>
+            - define strike <player.eye_location.ray_trace[range=100]>
+            - if !<player.has_flag[ov.match.character.artillery.cd]>:
+                - playeffect effect:redstone at:<[strike].points_between[<[strike].above[5]>].distance[0.1]> special_data:0.8|#3474eb offset:0
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=2;points=25]> special_data:0.7|#70a2ff offset:0.1 quantity:10
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=3;points=35]> special_data:0.7|#70a2ff offset:0.1 quantity:10
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=5;points=55]> special_data:0.7|#70a2ff offset:0.1 quantity:10
+                - flag <player> ov.match.character.artillery.cd:<[strike]> expire:5t
+            - teleport <player.vehicle> <[location].with_pitch[0].with_yaw[<player.location.yaw>].with_y[<[hit].y.if_null[<player.vehicle.location.y>]>]>
+        on player left clicks block flagged:ov.match.character.artillery.cd:
+            - define strike <player.flag[ov.match.character.artillery.cd]>
+            - flag <player> ov.match.character.artillery.count:++
+            - repeat 10:
+                - playeffect effect:redstone at:<[strike].points_between[<[strike].above[5]>].distance[0.1]> special_data:1.5|#3474eb offset:0 visibility:10000
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=2;points=25]> special_data:1.5|#144eba quantity:1 offset:0 visibility:10000
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=3;points=35]> special_data:1.5|#144eba quantity:1 offset:0 visibility:10000
+                - playeffect effect:redstone at:<[strike].points_around_y[radius=5;points=55]> special_data:1.5|#144eba quantity:1 offset:0 visibility:10000
+                - wait 0.13s
+            - hurt 550 <[strike].find_entities[living].within[1]> source:<player>
+            - hurt 200 <[strike].find_entities[living].within[3]> source:<player>
+            - hurt 30 <[strike].find_entities[living].within[5]> source:<player>
+        on player damaged flagged:ov.match.character.artillery:
+            - determine passively cancelled
+
+
 
 ov_bastion_bounce:
     type: task
@@ -153,16 +249,6 @@ ov_bastion_bounce:
         - flag <player> ov.match.character.artillery
         - cast invisibility <player> d:-1 no_icon hide_particles
 
-ov_bastion_handler:
-    type: world
-    debug: false
-    events:
-        on player breaks block flagged:ov.match.character.artillery:
-            - determine passively cancelled
-        on player right clicks block flagged:ov.match.character.artillery:
-            - determine passively cancelled
-        on player damages entity flagged:ov.match.character.artillery:
-            - determine passively cancelled
 
 ov_bastion_recon:
     type: item
@@ -192,7 +278,7 @@ ov_bastion_assault:
         hides: all
 
     flags:
-        ability_1: ov_bastion
+        primary: ov_bastion
 
         maxDamage: 12
         minDamage: 3.6

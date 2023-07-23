@@ -26,13 +26,13 @@ ov_sojourn:
             - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air].above[0.2].right[0.4]||null>
             - if <[hit]> != null:
                 - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
-                    - playeffect effect:redstone offset:0 special_data:0.4|#00aaee at:<[point]>
+                    - playeffect effect:redstone offset:0 special_data:0.3|#00aaee at:<[point]>
                 - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
                 - if <[target].any>:
                     - flag <player> ov.match.character.charge:<player.flag[ov.match.character.charge].add[5].min[100].if_null[1]>
                     - hurt 9 <[target]> source:<player>
                 - run ov_sojourn_railgun_display
-            - wait 5t
+            - wait 2t
 
     secondary_fire:
         # Single blast
@@ -72,7 +72,6 @@ ov_sojourn:
         - wait 3t
         - define npc_velocity <entry[powerslide_stand].created_npc.velocity>
         - mount cancel <player>
-        - remove <player.flag[ov.match.character.slidenpc]>
         - if <player.flag[ov.match.character.jumpused]>:
             - adjust <player> velocity:<[npc_velocity]>
         - else:
@@ -80,6 +79,7 @@ ov_sojourn:
         - flag <player> ov.match.character.jumpused:false
         - flag <player> ov.match.character.slide.queue:!
         - flag <player> ov.match.character.jumpnpc:!
+        - remove <player.flag[ov.match.character.slidenpc]>
         - remove <entry[powerslide_stand].created_npc>
         - cast invisibility <player> remove
 
@@ -94,11 +94,11 @@ ov_sojourn:
 
     ultimate:
         # Overclock
-        - flag <player> ov.match.character.overclocked:true
+        - flag <player> ov.match.character.overclocked
         - flag <player> ov.match.character.charge:100
         - run ov_sojourn_railgun_display
         - wait 8s
-        - flag <player> ov.match.character.overclocked:false
+        - flag <player> ov.match.character.overclocked:!
         - bossbar auto <player.name>_charge color:white
 
 
@@ -119,6 +119,7 @@ ov_sojourn_jump_detection:
                 - remove <player.flag[ov.match.character.slidenpc]>
                 - stop
             - wait 1t
+        - remove <player.flag[ov.match.character.slidenpc]>
 
 ov_sojourn_powerslide_jump_handler:
     type: world
@@ -134,22 +135,27 @@ ov_sojourn_railgun_display:
     type: task
     debug: false
     script:
-        - if <player.has_flag[ov.match.character.overclocked]>:
+        - if !<player.has_flag[ov.match.character.overclocked]>:
             - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:white
         - else:
-            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&f><&l><player.flag[ov.match.character.charge]><&f>/100 color:blue
+            - bossbar auto <player.name>_charge players:<player> progress:<player.flag[ov.match.character.charge].div[100]> title:<&b><&l><player.flag[ov.match.character.charge]><&b>/100 color:blue
 
 ov_sojourn_disruptor_break:
     type: task
     debug: false
     definitions: point
     script:
-        - define orb <[point].to_ellipsoid[5,5,5]>
         - repeat 16:
-            - playeffect effect:redstone offset:0 special_data:0.9|#0000ff visibility:10000 at:<[orb].shell>
-            - playeffect effect:sonic_boom at:<[point]> visibility:10000
+            - define circ <location[0,0,0].points_around_x[radius=3;points=40]>
+            - define circls <list[]>
+            - repeat 30:
+                - define rotval <element[12].mul[<[value]>].to_radians>
+                - define circls <[circls].include[<[circ].parse_tag[<[parse_value].rotate_around_y[<[rotval]>]>]>]>
+            - define circls <[circls].parse_tag[<[point].relative[<[parse_value]>]>]>
+            - playeffect effect:redstone offset:0.1 special_data:1|#0000ff visibility:10000 at:<[circls]>
+            - playeffect effect:sonic_boom at:<[point]> visibility:10000 offset:0.01
             #- cast slow duration:0.3s amplifier:2 <[orb].entities[player]>
-            - hurt 13.125 <[orb].entities[player]> source:<player>
+            - hurt 13.125 <[point].find_entities[living].within[5]> source:<player>
             - wait 0.25s
 
 ov_sojourn_railgun_rapid:
@@ -215,7 +221,7 @@ ov_sojourn_powerslide:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9411
+        custom_model_data: 9224
     flags:
         ability: true
         ability_1: ov_sojourn
@@ -227,7 +233,7 @@ ov_sojourn_disruptor:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9412
+        custom_model_data: 9225
     flags:
         ability: true
         ability_2: ov_sojourn
@@ -248,4 +254,4 @@ ov_sojourn_disruptor_model:
     material: copper_ingot
     mechanisms:
         hides: all
-        custom_model_data: 9413
+        custom_model_data: 9226
