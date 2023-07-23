@@ -69,11 +69,16 @@ ov_sojourn:
         - create player <player.name> save:playerNPC <player.location>
         - invisible <entry[powerslide_stand].created_npc> true
         - adjust <entry[powerslide_stand].created_npc> has_friction:false
-        - flag <player> ov.match.character.jumpused:false
         - flag <player> ov.match.character.slide.queue:<queue>
         - flag <player> ov.match.character.jumpnpc:<entry[powerslide_stand].created_npc>
         - flag <player> ov.match.character.slidenpc:<entry[playerNPC].created_npc>
-        - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
+        - define entry <player.location>
+        - flag <player> ov.match.character.jumpused:<[entry]>
+        - wait 2t
+        - if <[entry].distance[<player.location>]> < 0.3:
+            - adjust <entry[powerslide_stand].created_npc> velocity:<player.eye_location.with_pitch[0].direction.vector.mul[1.01]>
+        - else:
+            - adjust <entry[powerslide_stand].created_npc> velocity:<player.location.sub[<[entry]>].mul[3]>
         - mount <player>|<entry[powerslide_stand].created_npc>
         - cast invisibility <player> d:10s no_icon hide_particles
         - run ov_sojourn_jump_detection
@@ -86,7 +91,7 @@ ov_sojourn:
             - adjust <player> velocity:<[npc_velocity]>
         - else:
             - teleport <player> <[player_location]>
-        - flag <player> ov.match.character.jumpused:false
+        - flag <player> ov.match.character.jumpused:!
         - flag <player> ov.match.character.slide.queue:!
         - flag <player> ov.match.character.jumpnpc:!
         - remove <player.flag[ov.match.character.slidenpc]>
@@ -118,7 +123,7 @@ ov_sojourn_jump_detection:
     script:
         - while <player.has_flag[ov.match.character.jumpnpc].if_null[false]>:
             - teleport <player.flag[ov.match.character.slidenpc]> <player.flag[ov.match.character.jumpnpc].location>
-            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.left[0.5]>
+            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].yaw>].left[0.5]>
             - sleep npc:<player.flag[ov.match.character.slidenpc]>
             - if <player.eye_location.find_blocks[!air].within[0.5].any>:
                 - queue <queue[<player.flag[ov.match.character.slide.queue]>]> stop
@@ -137,8 +142,8 @@ ov_sojourn_powerslide_jump_handler:
     events:
         on player steers entity:
             - if <context.jump>:
-                - if !<player.flag[ov.match.character.jumpused]>:
-                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.with_pitch[0].mul[1.2].add[0,1.3,0]>
+                - if <player.has_flag[ov.match.character.jumpused]>:
+                    - adjust <player.flag[ov.match.character.jumpnpc]> velocity:<player.flag[ov.match.character.jumpnpc].velocity.mul[0.9].add[0,0.5,0]>
                     - flag <player> ov.match.character.jumpused:true
 
 ov_sojourn_railgun_display:
