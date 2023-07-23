@@ -48,7 +48,7 @@ ov_character_selector_ui_support:
     definitions:
         p: ui_pane
     procedural items:
-        - define list <list[].alphabetical>
+        - define list <list[brigitte].alphabetical>
         - define determin <list>
         - foreach <[list]> as:item:
             - define determin:->:ov_<[item]>_icon
@@ -134,3 +134,11 @@ ov_sojourn_icon:
     display name: <&f>Sojourn
     flags:
         data: ov_sojourn_data
+
+
+ov_brigitte_icon:
+    type: item
+    material: light_blue_stained_glass_pane
+    display name: <&f>Brigitte
+    flags:
+        data: ov_brigitte_data
