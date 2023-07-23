@@ -131,19 +131,6 @@ ov_sojourn_jump_detection:
             - wait 1t
         - remove <player.flag[ov.match.character.slidenpc]>
 
-test:
-    type: task
-    script:
-        - definemap data:
-            location: <player.eye_location.with_pitch[<player.location.pitch.add[90]>].with_yaw[<player.location.yaw>]>
-            radius: 1.5
-            rotation: 0
-            points: 360
-            arc: 360
-        - define locations:->:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine>
-        - foreach <[locations]> as:point:
-            - playeffect effect:redstone offset:0 special_data:0.4|#00aadd visibility:10000 at:<[point]>
-
 ov_sojourn_powerslide_jump_handler:
     type: world
     debug: false
@@ -178,7 +165,7 @@ ov_sojourn_disruptor_break:
             - playeffect effect:redstone offset:0.1 special_data:1|#0000ff visibility:10000 at:<[circls]>
             - playeffect effect:sonic_boom at:<[point]> visibility:10000 offset:0.01
             #- cast slow duration:0.3s amplifier:2 <[orb].entities[player]>
-            - hurt 13.125 <[point].find_entities[living].within[5]> source:<player>
+            - hurt 13.125 <[point].find_entities[living].within[3]> source:<player>
             - wait 0.25s
 
 ov_sojourn_railgun_rapid:
