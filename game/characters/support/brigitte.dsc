@@ -38,7 +38,7 @@ ov_brigitte:
             - foreach <[whip]> as:point:
                 - if <[loop_index]> > 10:
                     - playeffect effect:redstone special_data:0.8|<list[#454545|#000000|#5c5c5c].random> at:<[point]> offset:0
-                    - hurt 35 <[point].find_entities[living].within[0.3]>
+                    - hurt 35 <[point].find_entities[living].within[0.3]> source:<player>
             - playeffect effect:redstone special_data:0.6|<list[#454545|#000000|#5c5c5c].random> at:<[whip].last> offset:0.2 quantity:40
             - wait 0.01
     # secondary:
@@ -94,9 +94,15 @@ ov_brigitte:
         - ratelimit <player> 1t
         - define npc <player.flag[ov.match.character.shield.npc]>
         - define beam <[npc].location.points_between[<[npc].location.forward_flat[12]>].distance[0.5]>
+        - define total <list>
         - foreach <[beam]> as:point:
             - define hit <[point].with_y[<[npc].location.y>].above[2].with_pitch[90].ray_trace[range=200]>
-            - if <[point].above[1].material.is_solid>:
+            - define ent <[point].forward[1].find_entities[living].within[1].exclude[<player>|<player.flag[ov.match.character.shield.hitbox]>]>
+            - if <[ent].any>:
+                - foreach <[ent]> as:t:
+                    - adjust <[t]> velocity:<[t].location.sub[<player.location.forward[1]>]>
+                    - hurt 50 <[t]> source:<player>
+            - if <[hit].above[0.5].material.is_solid>:
                 - stop
             - teleport <[npc]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
             - if <[loop_index].mod[2]>:
@@ -118,7 +124,6 @@ ov_brigitte_handler:
     events:
         on player right clicks entity flagged:ov.match.character.shield:
             - run ov_brigitte.bash
-
         on player steers entity flagged:ov.match.character.shield:
             - if <context.dismount>:
                 - determine cancelled
@@ -131,7 +136,7 @@ ov_brigitte_handler:
                 - define side <[side].mul[-1]>
                 - define location <[location].right[<[side]>]>
             - define hit <[location].with_y[<[stand].location.y>].above[2].with_pitch[90].ray_trace[range=200]>
-            - if <[location].above[1].material.is_solid>:
+            - if <[hit].above[0.5].material.is_solid>:
                 - stop
             - teleport <[stand]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
 

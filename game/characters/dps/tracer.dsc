@@ -52,7 +52,10 @@ ov_tracer:
 
     ability_1:
         #blink
-        - choose <proc[ov_walk_direction]>:
+        - define prev_loc <player.location>
+        - wait 1t
+        - inject ov_walk_direction
+        - choose <[output]>:
             - case forward:
                 - define beam <player.eye_location.points_between[<player.eye_location.forward_flat[7]>].distance[0.5]>
                 - foreach <[beam]> as:point:
@@ -62,6 +65,20 @@ ov_tracer:
                     - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
             - case left:
                 - define beam <player.eye_location.points_between[<player.eye_location.left[7]>].distance[0.5]>
+                - foreach <[beam]> as:point:
+                    - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
+                    - if <[point].above[1].material.is_solid>:
+                        - stop
+                    - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
+            - case right:
+                - define beam <player.eye_location.points_between[<player.eye_location.right[7]>].distance[0.5]>
+                - foreach <[beam]> as:point:
+                    - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
+                    - if <[point].above[1].material.is_solid>:
+                        - stop
+                    - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
+            - case backward:
+                - define beam <player.eye_location.points_between[<player.eye_location.backward_flat[7]>].distance[0.5]>
                 - foreach <[beam]> as:point:
                     - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
                     - if <[point].above[1].material.is_solid>:
