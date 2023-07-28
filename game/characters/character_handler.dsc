@@ -31,7 +31,16 @@ ov_weapon_handle:
                 - run <[item].flag[ability_2]>.ability_2
             - if <[item].has_flag[ultimate]>:
                 - run <[item].flag[ultimate]>.ultimate
+        on slime splits:
+            - determine passively cancelled
+        on slime damaged by entity:
+            - if <context.cause> == SUFFOCATION:
+                - stop
+            - if <context.entity.has_flag[shieldHitbox]>:
+                - flag <context.entity.flag[shieldHitbox]> ov.match.character.shield.health:-:<context.damage>
 
+        on player damaged by SUFFOCATION:
+            - determine passively cancelled
 
         after player holds item item:item_flagged:scope:
             - adjust <player> fov_multiplier:<player.item_in_hand.flag[scope]>
@@ -142,7 +151,7 @@ ov_bullet_spread_calc:
             - define x <[base].mul[<[angle].cos>]>
             - define y <[base].mul[<[angle].sin>]>
             - define vert <[p_l].add[<[orient].transform[<location[<[x]>,<[y]>,0]>]>]>
-            - define list:->:<[vert].points_between[<[p_l_e]>].distance[0.1]>
+            - define list:->:<[vert].points_between[<[p_l_e]>].distance[0.1].reverse>
         - determine <[list]>
 
 ov_item_stats:
