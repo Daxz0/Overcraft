@@ -52,28 +52,29 @@ ov_tracer:
 
     ability_1:
         #blink
-        - define hit <player.eye_location.with_pitch[0].ray_trace[range=7;fluids=false;nonsolids=true;return=block].if_null[null]>
-        - if <[hit]> == null:
-            - define hit <player.eye_location.forward_flat[7].with_pitch[90].ray_trace[range=20;fluids=true;nonsolids=false;return=block].above[1]>
+        - choose <proc[ov_walk_direction]>:
+            - case forward:
+                - define beam <player.eye_location.points_between[<player.eye_location.forward_flat[7]>].distance[0.5]>
+                - foreach <[beam]> as:point:
+                    - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
+                    - if <[point].above[1].material.is_solid>:
+                        - stop
+                    - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
+            - case left:
+                - define beam <player.eye_location.points_between[<player.eye_location.left[7]>].distance[0.5]>
+                - foreach <[beam]> as:point:
+                    - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
+                    - if <[point].above[1].material.is_solid>:
+                        - stop
+                    - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
 
-
-        - define beam <player.eye_location.points_between[<[hit]>].distance[0.5]>
-        # - adjust <player> velocity:<player.location.sub[<player.location.backward_flat[0.5]>]>
-
-        - foreach <[beam]> as:point:
-            - if <[point].material> matches *_slab || <[point].material> matches *_stair :
-                - if <[loop_index]> <= 1:
-                    - teleport <player> <[point].above[0.5]>
-                - else:
-                    - teleport <player> <[beam].get[<[loop_index].sub[3]>].above[0.5]>
-                - stop
-            - if <[point].material.is_solid>:
-                - if <[loop_index]> <= 1:
-                    - teleport <player> <[point].with_y[<[hit].y>]>
-                - else:
-                    - teleport <player> <[beam].get[<[loop_index].sub[3]>].with_y[<[hit].y>]>
-                - stop
-        - teleport <player> <[beam].get[<[beam].size.sub[3]>].with_y[<[hit].y>]>
+            - default:
+                - define beam <player.eye_location.points_between[<player.eye_location.forward_flat[7]>].distance[0.5]>
+                - foreach <[beam]> as:point:
+                    - define hit <[point].with_y[<player.location.y>].above[2.5].with_pitch[90].ray_trace[range=200]>
+                    - if <[point].above[1].material.is_solid>:
+                        - stop
+                    - teleport <player> <[hit].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]> relative
 
     ability_2:
         #recall
