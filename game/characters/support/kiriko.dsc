@@ -23,13 +23,12 @@ ov_kiriko:
         #ofuda
         - ratelimit <player> 0.2s
         - repeat 2:
-            - if 1 == 1:
-                - flag player usingofuda:true expire:15s
-                - playsound <player.location> <player> sound:entity_player_attack_nodamage volume:2
-                - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
-                    - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_damage ignore_collision destination:<player.flag[ov.match.supporttarget].location.up[1]> no_rotate script:ov_kiriko_ofudacollide
-                - else:
-                    - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=!snowball;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]>
+            - flag player usingofuda:true expire:15s
+            - playsound <player.location> <player> sound:entity_player_attack_nodamage volume:2
+            - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
+                - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_damage ignore_collision destination:<player.flag[ov.match.supporttarget].location.up[1]> no_rotate script:ov_kiriko_ofudacollide
+            - else:
+                - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=!snowball;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]>
             - wait 0.2
 
     secondary_fire:
@@ -75,6 +74,7 @@ ov_kiriko_ofuda:
     material: paper
     mechanisms:
         hides: all
+        custom_model_data: 9231
 
     flags:
         primary: ov_kiriko
