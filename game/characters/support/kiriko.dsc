@@ -43,7 +43,9 @@ ov_kiriko:
 
     ability_2:
     #swift step
-
+        - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
+            - teleport <player> <player.flag[ov.match.supporttarget].location>
+            - playsound <player.location> sound:block_anvil_place pitch:1.3 volume:0.7
 
 ov_kiriko_ofudacollide:
     type: task
@@ -88,3 +90,15 @@ ov_kiriko_kunai:
 
     flags:
         secondary: ov_kiriko
+
+
+ov_kiriko_swift_step:
+    type: item
+    display name: <&f>Swift Step
+    material: paper
+    mechanisms:
+        hides: all
+
+    flags:
+        ability: true
+        ability_2: ov_kiriko
