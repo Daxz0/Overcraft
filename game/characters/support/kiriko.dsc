@@ -23,13 +23,13 @@ ov_kiriko:
         #ofuda
         - ratelimit <player> 0.2s
         - repeat 2:
-            - flag player usingofuda:true expire:15s
             - playsound <player.location> <player> sound:entity_player_attack_nodamage volume:2
             - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
-                - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_damage ignore_collision destination:<player.flag[ov.match.supporttarget].location.up[1]> no_rotate script:ov_kiriko_ofudacollide
+                - run ov_kiriko_ofudaparticle_homing
+                - wait 0.2
             - else:
-                - push snowball[item=paper] origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=!snowball;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]>
-            - wait 0.2
+                - run ov_kiriko_ofudaparticle_nothoming
+                - wait 0.2
 
     secondary_fire:
         #kunai (no bloom or falloff)
@@ -39,6 +39,7 @@ ov_kiriko:
 
     ability_1:
     #suzu
+        - shoot snowball[item=ov_kiriko_suzu] origin:<player.eye_location.down[0.9].right[0.2]> height:2 destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> script:ov_kiriko_suzucollide
 
 
     ability_2:
@@ -46,6 +47,48 @@ ov_kiriko:
         - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
             - teleport <player> <player.flag[ov.match.supporttarget].location>
             - playsound <player.location> sound:block_anvil_place pitch:1.3 volume:0.7
+            - playeffect effect:portal at:<player.location>
+
+
+ov_kiriko_ofudaparticle_nothoming:
+    type: task
+    debug: false
+    script:
+        - definemap data:
+            location: <player.eye_location.forward[1].right[0.9].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
+            radius: 0.3
+            rotation: <util.random_decimal.mul[360]>
+            points: 19
+            arc: 360
+        - define locations <[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
+        - define fw:0
+        - foreach <[locations]> as:onelocation:
+            - define fw:<[fw].add[0.1]>
+            - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
+            - if <[loop_index].mod[4]> == 0:
+                - wait 1t
+            - define lastloc:<[onelocation].forward[<[fw]>]>
+        - showfake grass_block <[lastloc]> d:1s
+
+ov_kiriko_ofudaparticle_homing:
+    type: task
+    debug: false
+    script:
+        - definemap data:
+            location: <player.eye_location.forward[1].right[0.9].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
+            radius: 0.3
+            rotation: <util.random_decimal.mul[360]>
+            points: 19
+            arc: 360
+        - define locations:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
+        - define fw:0
+        - foreach <[locations]> as:onelocation:
+            - define fw:<[fw].add[0.1]>
+            - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
+            - if <[loop_index].mod[4]> == 0:
+                - wait 1t
+            - define lastloc:<[onelocation].forward[<[fw]>]>
+        - showfake grass_block <[lastloc]> d:1s
 
 ov_kiriko_ofudacollide:
     type: task
@@ -58,6 +101,16 @@ ov_kiriko_kunaicollide:
     debug: false
     script:
         - stop
+
+ov_kiriko_suzucollide:
+    type: task
+    debug: false
+    script:
+        - narrate <[location]>
+        - spawn area_effect_cloud <[location]> save:aec_suzu
+        - adjust <entry[aec_suzu].spawned_entity> particle_color:white
+        - wait 0.85s
+        - remove <entry[aec_suzu].spawned_entity>
 
 
 ov_kiriko_handler:
@@ -76,7 +129,7 @@ ov_kiriko_ofuda:
     material: paper
     mechanisms:
         hides: all
-        custom_model_data: 9231
+        custom_model_data: 9232
 
     flags:
         primary: ov_kiriko
@@ -90,6 +143,19 @@ ov_kiriko_kunai:
 
     flags:
         secondary: ov_kiriko
+
+
+ov_kiriko_suzu:
+    type: item
+    display name: <&f>Suzu
+    material: paper
+    mechanisms:
+        hides: all
+        custom_model_data: 9233
+
+    flags:
+        ability: true
+        ability_1: ov_kiriko
 
 
 ov_kiriko_swift_step:
