@@ -14,7 +14,7 @@ ov_health_handler:
             - run ov_health_handler.hurt_sound
             - run ov_health_handler.hurt_overlay
 
-        on player damages entity:
+        on player damages entity flagged:ov.match:
             - define target <context.entity>
             - define hp <[target].flag[ov.match.data.health].if_null[<[target].health>].round>
             - define mhp <[target].flag[ov.match.data.maxhealth].if_null[<[target].health_max>].round>

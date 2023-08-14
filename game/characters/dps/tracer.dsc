@@ -96,7 +96,7 @@ ov_tracer:
     ability_2:
         #recall
         - teleport <player> <player.flag[ov.match.character.recall.loc]>
-        - flag <player> ov.match.data.health:<player.flag[ov.match.character.recall.hp]>
+        - flag <player> ov.match.data.health:<player.flag[ov.match.character.recall.hp].if_null[<player.flag[ov.match.data.health]>]>
     ultimate:
         #pulse bomb
         - define loc <player.eye_location>

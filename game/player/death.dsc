@@ -9,7 +9,7 @@ ov_death_handler:
     type: world
     debug: false
     events:
-        on player dies:
+        on player dies flagged:ov.match:
             - determine passively cancelled
             - flag <player> ov.match.dead expire:5s
             - ~run ov_death_ragdoll
