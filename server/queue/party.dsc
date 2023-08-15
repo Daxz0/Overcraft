@@ -8,10 +8,12 @@ party_tabcompletion_arg2:
             - determine <empty>
         - case disband:
             - determine <empty>
+        - case leave:
+            - determine <empty>
         - case invite:
             - if <player.has_flag[party]>:
                 - define party <player.flag[party]>
-                - if <server.flag[hm_partys.<[party]>.owner]> == <player.uuid>:
+                - if <server.flag[ov_partys.<[party]>.owner]> == <player.uuid>:
                     - determine <server.online_players.filter[has_flag[party].not].exclude[<player.uuid>].parse[name]>
                 - else:
                     - determine <empty>
@@ -20,17 +22,17 @@ party_tabcompletion_arg2:
         - case kick:
             - if <player.has_flag[party]>:
                 - define party <player.flag[party]>
-                - if <server.flag[hm_partys.<[party]>.owner]> == <player.uuid>:
-                    - determine <server.flag[hm_partys.<[party]>.members].exclude[<player.uuid>].parse[as[player].name]>
+                - if <server.flag[ov_partys.<[party]>.owner]> == <player.uuid>:
+                    - determine <server.flag[ov_partys.<[party]>.members].exclude[<player.uuid>].parse[as[player].name]>
                 - else:
                     - determine <empty>
             - else:
                 - determine <empty>
         - case info:
-            - if !<server.flag[hm_partys].keys.is_truthy>:
+            - if !<server.flag[ov_partys].keys.is_truthy>:
                 - determine <empty>
             - else:
-                - determine <server.flag[hm_partys].keys>
+                - determine <server.flag[ov_partys].keys>
         - case chat:
             - determine <empty>
         - default:
@@ -40,16 +42,18 @@ party:
     type: command
     name: party
     description: Manages partys.
-    usage: /party create <&lt>name<&gt> | disband | invite <&lt>player<&gt> | kick <&lt>player<&gt> | chat | info (name)
-    permission: hm.party
+    usage: /party create <&lt>name<&gt> | disband | leave | invite <&lt>player<&gt> | kick <&lt>player<&gt> | chat | info (name)
+    permission: ov.party
+    aliases:
+        - p
     data:
         define_party:
         - define party <player.flag[party]>
-        - if !<server.has_flag[hm_partys.<[party]>]>:
+        - if !<server.has_flag[ov_partys.<[party]>]>:
             - narrate "<&4>Uh Oh! Your party doesn't exist! This shouldn't happen.. Contact developers."
             - stop
     tab completions:
-        1: create|disband|invite|kick|chat|info
+        1: create|disband|leave|invite|kick|chat|info
         2: <proc[party_tabcompletion_arg2].context[<context.args.first>]>
         3: <empty>
     debug: false
@@ -73,15 +77,14 @@ party:
                 - narrate "<&[error]>Too many arguments! Did you forget <&7><&dq><&[error]>quotes<&7><&dq> <&[error]>around your party's name?"
                 - stop
             - define party <[list].get[2].proc[trim_alphanumeric]>
-            - if <server.has_flag[hm_partys.<[party]>]>:
+            - if <server.has_flag[ov_partys.<[party]>]>:
                 - narrate "<&[error]>This party already exists!"
                 - stop
-            - flag server hm_partys.<[party]>.owner:<player.uuid>
-            - flag server hm_partys.<[party]>.members:->:<player.uuid>
-            - flag server hm_partys.<[party]>.creation:<util.time_now>
+            - flag server ov_partys.<[party]>.owner:<player.uuid>
+            - flag server ov_partys.<[party]>.members:->:<player.uuid>
+            - flag server ov_partys.<[party]>.creation:<util.time_now>
             - flag <player> party:<[party]>
             - narrate "<&[emphasis]>The party <&dq><[party]><&dq> has been created!"
-            - announce to_console "<&[emphasis]>The party <&dq><[party]><&dq> has been created!"
         - case disband:
             - if !<player.has_flag[party]>:
                 - narrate "<&[error]>You're not in a party!"
@@ -91,17 +94,22 @@ party:
                 - narrate "<&[error]>Usage<&co> /party disband"
                 - stop
             - inject party.data.define_party
-            - if <server.flag[hm_partys.<[party]>.owner]> != <player.uuid>:
+            - if <server.flag[ov_partys.<[party]>.owner]> != <player.uuid>:
                 - narrate "<&[error]>You're not your party's owner!"
                 - stop
-            - flag <server.flag[hm_partys.<[party]>.members].parse[as[player]]> party:!
-            - flag server hm_partys.<[party]>:!
-            - announce "<&[warning]>The party <&dq><[party]><&dq> was disbanded."
-            - announce to_console "<&[warning]>The party <&dq><[party]><&dq> was disbanded."
+            - narrate targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]> "<&[warning]>The party has been disbanded."
+            - flag <server.flag[ov_partys.<[party]>.members].parse[as[player]]> party:!
+            - flag server ov_partys.<[party]>:!
         - case invite:
             - if !<player.has_flag[party]>:
-                - narrate "<&[error]>You're not in a party!"
-                - stop
+                - define party <element[<player.name><&sq>s<&sp>Party].proc[trim_alphanumeric]>
+                - if <server.has_flag[ov_partys.<[party]>]>:
+                    - narrate "<&[error]>This party already exists!"
+                    - stop
+                - flag server ov_partys.<[party]>.owner:<player.uuid>
+                - flag server ov_partys.<[party]>.members:->:<player.uuid>
+                - flag server ov_partys.<[party]>.creation:<util.time_now>
+                - flag <player> party:<[party]>
             - if <context.args.size> < 2:
                 - narrate "<&[error]>Too few arguments! You must provide a player's name!"
                 - stop
@@ -110,8 +118,11 @@ party:
                 - narrate "<&[error]>Usage<&co> /party invite <&lt>player<&gt>"
                 - stop
             - inject party.data.define_party
-            - if <server.flag[hm_partys.<[party]>.owner]> != <player.uuid>:
+            - if <server.flag[ov_partys.<[party]>.owner]> != <player.uuid>:
                 - narrate "<&[error]>You're not your party's owner!"
+                - stop
+            - if <server.flag[ov_partys.<[party]>.members].size> >= 3:
+                - narrate "<&[error]>You're party is full!"
                 - stop
             - define invited <server.match_player[<context.args.get[2]>].if_null[null]>
             - if <[invited]> == null || <[invited].name> != <context.args.get[2]>:
@@ -127,10 +138,9 @@ party:
                         - stop
                 - narrate "<&[emphasis]>Invite accepted." targets:<[invited]>
                 - narrate "<&[emphasis]><[invited].name> accepted the invite to your party."
-                - announce "<&[emphasis]><[invited].name> just joined the party <&dq><[party]><&dq>!"
-                - announce to_console "<&[emphasis]><[invited].name> just joined the party <&dq><[party]><&dq>!"
+                - narrate targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]> "<&[emphasis]><[invited].name> has joined the party."
                 - flag <[invited]> party:<[party]>
-                - flag server hm_partys.<[party]>.members:->:<[invited].uuid>
+                - flag server ov_partys.<[party]>.members:->:<[invited].uuid>
                 - flag <[invited]> partys_accepted_invites:->:<[party]> expire:1m
             - clickable usages:1 save:deny_invite for:<[invited]> until:1m:
                 - if <[invited].has_flag[partys_accepted_invites]>:
@@ -140,7 +150,7 @@ party:
                 - narrate "<&[emphasis]>Invite denied." targets:<[invited]>
                 - narrate "<&[emphasis]><[invited].name> denied the invite to your party."
                 - flag <[invited]> partys_denied_invites:->:<[party]> expire:1m
-            - narrate "<&[warning]>You're being invited to the party <[party]> on <player.name>'s behalf!" targets:<[invited]>
+            - narrate "<&[warning]><player.name> has invited you to join their party!" targets:<[invited]>
             - narrate <&sp.repeat[13]><&2><element[Accept].on_hover[Click here to accept the invite.].on_click[<entry[accept_invite].command>]><&sp.repeat[27]><&4><element[Deny].on_hover[Click here to deny the invite.].on_click[<entry[deny_invite].command>]> targets:<[invited]>
         - case kick:
             - if !<player.has_flag[party]>:
@@ -154,8 +164,8 @@ party:
                 - narrate "<&[error]>Usage<&co> /party kick <&lt>player<&gt>"
                 - stop
             - inject party.data.define_party
-            - if <server.flag[hm_partys.<[party]>.owner]> != <player.uuid>:
-                - narrate "<&[error]>You're not your party's owner!"
+            - if <server.flag[ov_partys.<[party]>.owner]> != <player.uuid>:
+                - narrate "<&[error]>You're not the party's owner!"
                 - stop
             - define kicked <server.match_player[<context.args.get[2]>].if_null[null]>
             - if <[kicked]> == null || <[kicked].name> != <context.args.get[2]>:
@@ -166,9 +176,9 @@ party:
                 - narrate "<&[error]>Consider <&dq>/party disband<&dq> instead."
                 - stop
             - flag <[kicked]> party:!
-            - flag server hm_partys.<[party]>.members:<-:<[kicked].uuid>
-            - announce "<&[warning]><[kicked].name> has been kicked from <&dq><[party]><&dq>!"
-            - announce to_console "<&[warning]><[kicked].name> has been kicked from <&dq><[party]><&dq>!"
+            - flag server ov_partys.<[party]>.members:<-:<[kicked].uuid>
+            - narrate <server.flag[ov_partys.<[party]>.members].parse[as[player]]> "<&[warning]><[kicked].name> has been kicked from the party."
+            - narrate targets:<[kicked]> "<&c>You have been kicked from the party."
         - case chat:
             - if !<player.has_flag[party]>:
                 - narrate "<&[error]>You're not in a party!"
@@ -177,8 +187,7 @@ party:
                 - narrate "<&[error]>Your message cannot be empty!"
                 - stop
             - inject party.data.define_party
-            - narrate <context.raw_args.after[<context.args.first>]> format:party_chat_format targets:<server.flag[hm_partys.<[party]>.members]>
-            - announce to_console <context.raw_args.after[<context.args.first>]> format:party_chat_format
+            - narrate <context.raw_args.after[<context.args.first>]> format:party_chat_format targets:<server.flag[ov_partys.<[party]>.members]>
         - case info:
             - if !<player.has_flag[party]>:
                 - narrate "<&[error]>You're not in a party!"
@@ -190,16 +199,32 @@ party:
                 - inject party.data.define_party
             - else:
                 - define party <context.args.get[2]>
-                - if !<server.has_flag[hm_partys.<[party]>]>:
+                - if !<server.has_flag[ov_partys.<[party]>]>:
                     - narrate "<&[error]>This party doesn't exist!"
                     - stop
-            - define __party <server.flag[hm_partys.<[party]>]>
+            - define __party <server.flag[ov_partys.<[party]>]>
             - define owner <[__party.owner].as[player]>
             - define members <[__party.members].parse[as[player]]>
-            - define creation <[__party.creation]>
             - narrate "<&7><&m><&sp.repeat[12]>[<&f> <[party]> <&7><&m>]<&sp.repeat[12]>"
             - narrate "<&7>Leader<&co> <&f><[owner].name>"
             - narrate "<&7>Members<&co> <&f><[members].size.on_hover[<[members].parse[name].deduplicate.separated_by[<n>]>]>"
+        - case leave:
+            - if !<player.has_flag[party]>:
+                - narrate "<&[error]>You're not in a party!"
+                - stop
+            - inject party.data.define_party
+            - if !<player.has_flag[party]>:
+                - narrate "<&[error]>You're not in a party!"
+                - stop
+            - if <server.flag[ov_partys.<[party]>.owner]> == <player.uuid>:
+                - narrate targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]> "<&[warning]>The party has been disbanded."
+                - flag <server.flag[ov_partys.<[party]>.members].parse[as[player]]> party:!
+                - flag server ov_partys.<[party]>:!
+            - else:
+                - flag <player> party:!
+                - narrate "<&[warning]><player.name> has left the party." targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]>
+                - narrate "<&e>You have left the party."
+                - flag server ov_partys.<[party]>.members:<-:<player.uuid>
         - default:
             - narrate <&[error]>Invalid<&sp>usage!
             - narrate <&[base]><script.parsed_key[usage]>
@@ -225,3 +250,19 @@ party_cancel_damage:
             - define user <context.entity>
             - if <[user].flag[party].if_null[null]> == <player.flag[party].if_null[false]>:
                 - determine cancelled
+party_offline:
+    type: world
+    debug: false
+    events:
+        on player quits flagged:party:
+            - define party <player.flag[party]>
+            - if <server.flag[ov_partys.<[party]>.owner]> == <player.uuid>:
+                - flag <server.flag[ov_partys.<[party]>.members].parse[as[player]]> party:!
+                - flag server ov_partys.<[party]>:!
+                - if <server.has_flag[ov_partys.<[party]>.members]>:
+                    - narrate "<&[warning]>The party has been disbanded due to leader disconnecting." targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]>
+            - else:
+                - flag <player> party:!
+                - flag server ov_partys.<[party]>.members:<-:<player.uuid>
+                - if <server.has_flag[ov_partys.<[party]>.members]>:
+                    - narrate "<&[warning]><player.name> has been removed from the party." targets:<server.flag[ov_partys.<[party]>.members].parse[as[player]]>
