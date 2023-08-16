@@ -150,6 +150,7 @@ party:
                 - narrate "<&[emphasis]>Invite denied." targets:<[invited]>
                 - narrate "<&[emphasis]><[invited].name> denied the invite to your party."
                 - flag <[invited]> partys_denied_invites:->:<[party]> expire:1m
+            - narrate "<&[warning]>You have invited <[invited].name> to your party!" targets:<player>
             - narrate "<&[warning]><player.name> has invited you to join their party!" targets:<[invited]>
             - narrate <&sp.repeat[13]><&2><element[Accept].on_hover[Click here to accept the invite.].on_click[<entry[accept_invite].command>]><&sp.repeat[27]><&4><element[Deny].on_hover[Click here to deny the invite.].on_click[<entry[deny_invite].command>]> targets:<[invited]>
         - case kick:

@@ -26,7 +26,7 @@ ov_queue:
         - if <[queue].size> >= 6:
             - define final full
             - foreach <[worlds].random> as:w:
-                - if !<[w].has_flag[in_match]>:
+                - if !<[w].has_flag[in_match].if_null[false]>:
                     - define final <[w]>
                     - foreach stop
             - if <[final]> == full:
@@ -34,36 +34,41 @@ ov_queue:
             - else:
                 - define t1 <list>
                 - define t2 <list>
-                - define pl <[t1]>:|:<[t2]>
-                - foreach <[queue]> as:p:
-                    - if <[t1].size> <= 3 && <[t2].size> <= 3:
+                - define pl <list[<[t1]><[t2]>].combine>
+                - foreach <[queue].parse_tag[<player[<[parse_value]>]>]> as:p:
+                    - if <[t1].size> >= 3 && <[t2].size> >= 3:
                         # queue is complete, teams are created go from here
-                        - define pl <[t1]>:|:<[t2]>
+                        - define pl <list[<[t1]><[t2]>].combine>
                         - foreach stop
                     - else:
-                        - if <[p].has_flag[party]>:
-                            - define party <server.flag[ov_partys.<[party]>.members]>
-                            - define size <[party].size>
+                        - if <[p].has_flag[party].if_null[false]>:
+                            - define party <player.flag[party]>
+                            - define party <server.flag[ov_partys.<[party]>.members].parse_tag[<player[<[parse_value]>]>]>
+                            - define size <[party].size.if_null[<util.int_max>]>
+                            - announce <[p].name>,<[size]>
 
                             # checking if adding party members to team will exceed the limit
 
                             - if <[t1].size.add[<[size]>]> <= 3:
-                                - foreach <server.flag[ov_partys.<[party]>.members]> as:p:
-                                    - define t1 <[t1]>:->:<[p]>
-                                - foreach stop
+                                - foreach <[party]> as:c:
+                                    - if <[party].contains[<[c]>]>:
+                                        - foreach next
+                                    - define t1:->:<[c]>
+                                    - flag server ov.queue.main:<-:<[c].uuid>
                             - else if <[t2].size.add[<[size]>]> <= 3:
-                                - foreach <server.flag[ov_partys.<[party]>.members]> as:p:
-                                    - define t2 <[t2]>:->:<[p]>
-                                - foreach stop
+                                - foreach <[party]> as:c:
+                                    - if <[party].contains[<[c]>]>:
+                                        - foreach next
+                                    - define t2:->:<[c]>
+                                    - flag server ov.queue.main:<-:<[c].uuid>
                         - else:
                             - if <[t1].size.add[1]> <= 3:
-                                - define t1 <[t1]>:->:<player>
-                                - foreach stop
+                                - define t1:->:<[p]>
+                                - flag server ov.queue.main:<-:<[p].uuid>
                             - else if <[t2].size.add[1]> <= 3:
-                                - define t2 <[t2]>:->:<player>
-                                - foreach stop
-
-
+                                - define t2:->:<[p]>
+                                - flag server ov.queue.main:<-:<[p].uuid>
+                - define pl <list[<[t1]><[t2]>].combine>
                 - if <[pl].size> < 6:
                     - stop
                 - flag <[pl]> ov.queued:!
@@ -71,6 +76,13 @@ ov_queue:
                 - title "title: <&f><&l>Match Found..." targets:<[pl]> stay:2s
                 - wait 3s
                 - teleport <[pl]> <world[<[final]>].spawn_location>
+
+force_queue:
+    type: task
+    script:
+        - foreach <server.online_players> as:__player:
+            - execute queue as_player
+
 ov_dequeue:
     type: command
     name: dequeue
