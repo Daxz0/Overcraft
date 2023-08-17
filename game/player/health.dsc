@@ -11,10 +11,10 @@ ov_health_handler:
             - define mhp <[player].flag[ov.match.data.maxhealth]>
             - flag <[player]> ov.match.data.health:-:<[dmg]>
 
-            - run ov_health_handler.hurt_sound
-            - run ov_health_handler.hurt_overlay
+            - inject ov_health_handler.hurt_sound
+            - inject ov_health_handler.hurt_overlay
 
-        on player damages entity:
+        on player damages entity flagged:ov.match:
             - define target <context.entity>
             - define hp <[target].flag[ov.match.data.health].if_null[<[target].health>].round>
             - define mhp <[target].flag[ov.match.data.maxhealth].if_null[<[target].health_max>].round>
@@ -49,13 +49,13 @@ ov_health_handler:
 
 
     hurt_overlay:
-        - worldborder <player> warningdistance:<util.int_max.div[50]>
+        - worldborder <[player]> warningdistance:<util.int_max.div[50]>
         - wait 5t
-        - worldborder <player> warningdistance:0
+        - worldborder <[player]> warningdistance:0
 
     hurt_sound:
-        - ratelimit <player> 1s
-        - playsound sound:entity_player_hurt <player.location>
+        - ratelimit <[player]> 1s
+        - playsound sound:entity_player_hurt <[player].location>
 
     low_hp:
         - ratelimit <player> 30s
@@ -69,14 +69,11 @@ ov_health_handler:
             - playsound sound:entity_warden_heartbeat <player>
             - worldborder <player> warningdistance:<util.int_max.div[15]>
             - wait 1s
-            - playsound sound:entity_player_breath <player> pitch:0.8
-            - wait 5t
             - worldborder <player> warningdistance:<util.int_max.div[10]>
             - repeat 10:
                 - inject ov_health_handler.low_hp_check
                 - playsound sound:entity_warden_heartbeat <player>
                 - wait 10t
-            - playsound sound:entity_player_breath <player> pitch:0.8
             - worldborder <player> warningdistance:<util.int_max>
 
             - repeat 10:

@@ -7,8 +7,7 @@ ov_brigitte_data:
     secondary_fire: ov_brigitte_shield
 
 
-    ability_1: ov_brigitte_blink
-    ability_2: ov_brigitte_recall
+    ability_2: ov_brigitte_whip_shot
     ultimate: ov_brigitte_pulse_bomb
 
     ammo: 40
@@ -28,6 +27,7 @@ ov_brigitte:
         - repeat 10:
             - define loc <player.location>
             - define val <[val].add[10]>
+            - define stop false
             - definemap data:
                 location: <[loc].with_pitch[0].above[1].forward[<[val].div[40]>].right[3].left[<[value].div[25]>].with_yaw[<[loc].yaw.add[-<[val]>]>]>
                 radius: 3
@@ -36,10 +36,14 @@ ov_brigitte:
                 arc: 180
             - define whip <[data].proc[circlegen].combine.reverse>
             - foreach <[whip]> as:point:
+                - if <[point].material.is_solid>:
+                    - define stop true
+                    - foreach stop
                 - if <[loop_index]> > 10:
                     - playeffect effect:redstone special_data:0.8|<list[#454545|#000000|#5c5c5c].random> at:<[point]> offset:0
                     - hurt 35 <[point].find_entities[living].within[0.3]> source:<player>
-            - playeffect effect:redstone special_data:0.6|<list[#454545|#000000|#5c5c5c].random> at:<[whip].last> offset:0.2 quantity:40
+            - if !<[stop]>:
+                - playeffect effect:redstone special_data:0.6|<list[#454545|#000000|#5c5c5c].random> at:<[whip].last> offset:0.2 quantity:40
             - wait 0.01
     # secondary:
     secondary_fire:
@@ -97,11 +101,12 @@ ov_brigitte:
         - define total <list>
         - foreach <[beam]> as:point:
             - define hit <[point].with_y[<[npc].location.y>].above[2].with_pitch[90].ray_trace[range=200]>
-            - define ent <[point].forward[1].find_entities[living].within[1].exclude[<player>|<player.flag[ov.match.character.shield.hitbox]>]>
+            - define ent <[point].find_entities[living].within[0.5].exclude[<player>|<player.flag[ov.match.character.shield.hitbox]>]>
             - if <[ent].any>:
                 - foreach <[ent]> as:t:
-                    - adjust <[t]> velocity:<[t].location.sub[<player.location.forward[1]>]>
+                    - adjust <[t]> velocity:<[t].location.sub[<player.location.forward[-1.5]>]>
                     - hurt 50 <[t]> source:<player>
+                - foreach stop
             - if <[hit].above[0.5].material.is_solid>:
                 - stop
             - teleport <[npc]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
@@ -111,11 +116,63 @@ ov_brigitte:
 
     ability_2:
         #whip shot
-        - define beam <player.eye_location.points_between[<player.eye_location.forward[15]>].distance[1]>
-        - define beamC <player.eye_location.points_between[<player.eye_location.forward[15]>].distance[0.5]>
+        - define final <player.eye_location.forward[10]>
+        - define beam <player.eye_location.above[-0.3].right[0.3].points_between[<[final]>].distance[0.5]>
+        - define beamC <player.eye_location.above[-0.3].right[0.3].points_between[<[final]>].distance[0.25]>
 
-
-        - define hit <player.eye_location.ray_trace>
+        - define pitch <player.location.pitch>
+        - foreach <[beamC]> as:point:
+            - if <[point].material.is_solid>:
+                - foreach stop
+            - if <[loop_index].mod[2]> == 0:
+                - playeffect at:<[beam].get[<[loop_index].div[2]>]> effect:redstone special_data:1|#454545 offset:0
+            - else:
+                - playeffect at:<[point]> effect:redstone special_data:0.6|#5c5c5c offset:0
+            - if <[loop_index].mod[5]> == 0:
+                - define ent <[point].find_entities[living].within[1].exclude[<player>]>
+                - if <[ent].any>:
+                    - foreach <[ent]> as:t:
+                        - adjust <[t]> velocity:<[t].location.sub[<player.location.forward[0.5]>]>
+                        - hurt 70 <[t]> source:<player>
+                    - foreach stop
+                - definemap data:
+                    location: <[point].forward[0.5].with_pitch[<[pitch]>]>
+                    radius: 0.5
+                    rotation: 0
+                    points: 10
+                    arc: 180
+                - define chain <[data].proc[circlegen].combine.reverse>
+                - playeffect at:<[chain]> effect:redstone special_data:0.45|#5c5c5c offset:0
+                - wait 1t
+        - definemap data:
+            location: <[beamC].last.forward[0.5].with_pitch[<[pitch]>]>
+            radius: 0.5
+            rotation: 0
+            points: 10
+            arc: 180
+        - define chain <[data].proc[circlegen].combine.reverse>
+        - repeat 5:
+            - playeffect at:<[chain]> effect:redstone special_data:1|#5c5c5c offset:0
+            - wait 1t
+        - define beam <player.eye_location.above[-0.3].right[0.3].points_between[<[final]>].distance[0.5]>
+        - define beamC <player.eye_location.above[-0.3].right[0.3].points_between[<[final]>].distance[0.25]>
+        - define beamC <[beamC].reverse>
+        - define beam <[beam].reverse>
+        - foreach <[beamC]> as:point:
+            - if <[loop_index].mod[2]> == 0:
+                - playeffect at:<[beam].get[<[loop_index].div[2]>]> effect:redstone special_data:1|#454545 offset:0
+            - else:
+                - playeffect at:<[point]> effect:redstone special_data:0.6|#5c5c5c offset:0
+            - if <[loop_index].mod[5]> == 0:
+                - definemap data:
+                    location: <[point].forward[0.5].with_pitch[<[pitch]>]>
+                    radius: 0.5
+                    rotation: 0
+                    points: 10
+                    arc: 180
+                - define chain <[data].proc[circlegen].combine.reverse>
+                - playeffect at:<[chain]> effect:redstone special_data:0.45|#5c5c5c offset:0
+                - wait 1t
 
 
 ov_brigitte_handler:
@@ -172,3 +229,14 @@ ov_brigitte_shield:
         secondary: ov_brigitte
         ability: true
         shield: 300
+
+ov_brigitte_whip_shot:
+    type: item
+    display name: <&f>Whip Shot
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9229
+    flags:
+        ability_2: ov_brigitte
+        ability: true
