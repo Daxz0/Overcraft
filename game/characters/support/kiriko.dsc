@@ -23,13 +23,16 @@ ov_kiriko:
         #ofuda
         - ratelimit <player> 0.2s
         - repeat 2:
+            - flag <player> ov.match.character.last_right_click:<util.time_now>
             - playsound <player.location> <player> sound:entity_player_attack_nodamage volume:2
+            - run ov_kiriko_ofudacast_visual
             - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
                 - run ov_kiriko_ofudaparticle_homing
                 - wait 0.2
             - else:
                 - run ov_kiriko_ofudaparticle_nothoming
                 - wait 0.2
+        - wait 2t
 
     secondary_fire:
         #kunai (no bloom or falloff)
@@ -50,45 +53,71 @@ ov_kiriko:
             - playeffect effect:portal at:<player.location>
 
 
+ov_kiriko_ofuda_handanim_handler:
+    type: world
+    debug: false
+    events:
+        on tick:
+            - foreach <server.online_players> as:__player:
+                - if <player.flag[ov.match.character.name]> == kiriko:
+                    - define since_last_click:<util.time_now.duration_since[<player.flag[ov.match.character.last_right_click].if_null[0]>].in_seconds.if_null[99]>
+                    - if <[since_last_click]> < 0.6:
+                        - inventory set o:ov_kiriko_ofuda_cast slot:1
+                    - else:
+                        - inventory set o:ov_kiriko_ofuda slot:1
+
+
 ov_kiriko_ofudaparticle_nothoming:
     type: task
     debug: false
     script:
         - definemap data:
-            location: <player.eye_location.forward[1].right[0.9].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
+            location: <player.eye_location.forward[1.2].right[0.5].down[0.2].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
             radius: 0.3
             rotation: <util.random_decimal.mul[360]>
-            points: 19
+            points: 28
             arc: 360
         - define locations <[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
         - define fw:0
         - foreach <[locations]> as:onelocation:
-            - define fw:<[fw].add[0.1]>
+            #14m/s, 1 block = 0.5m
+            - define fw:<[fw].add[0.0805]>
             - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
-            - define lastloc:<[onelocation].forward[<[fw]>]>
-        - showfake grass_block <[lastloc]> d:1s
 
 ov_kiriko_ofudaparticle_homing:
     type: task
     debug: false
     script:
         - definemap data:
-            location: <player.eye_location.forward[1].right[0.9].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
+            location: <player.eye_location.forward[1.2].right[0.5].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
             radius: 0.3
             rotation: <util.random_decimal.mul[360]>
-            points: 19
+            points: 28
             arc: 360
         - define locations:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
         - define fw:0
+        - if <player.flag[ov.match.supporttarget].location.if_null["NONE"].equals["NONE"]>:
+            - stop
         - foreach <[locations]> as:onelocation:
-            - define fw:<[fw].add[0.1]>
-            - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
+            #20m/s, 1 block = 0.5m
+            - if <player.flag[ov.match.supporttarget].location.if_null["NONE"].equals["NONE"]>:
+                - stop
+            - define uvec:<[onelocation].sub[<player.flag[ov.match.supporttarget].location.up[1]>].normalize>
+            - define fw:<[fw].add[0.115]>
+            - playeffect effect:redstone at:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
-            - define lastloc:<[onelocation].forward[<[fw]>]>
-        - showfake grass_block <[lastloc]> d:1s
+
+ov_kiriko_ofudacast_visual:
+    type: task
+    debug: false
+    script:
+        - stop
+        #- inventory set o:ov_kiriko_ofuda_cast slot:1
+        #- wait 0.21s
+        #- inventory set o:ov_kiriko_ofuda slot:1
 
 ov_kiriko_ofudacollide:
     type: task
@@ -107,6 +136,7 @@ ov_kiriko_suzucollide:
     debug: false
     script:
         - narrate <[location]>
+        - playsound <[location]> sound:block_glass_break pitch:2
         - spawn area_effect_cloud <[location]> save:aec_suzu
         - adjust <entry[aec_suzu].spawned_entity> particle_color:white
         - wait 0.85s
@@ -131,6 +161,17 @@ ov_kiriko_ofuda:
         hides: all
         custom_model_data: 9232
 
+    flags:
+        primary: ov_kiriko
+
+ov_kiriko_ofuda_cast:
+    type: item
+    display name: <&f>Ofuda
+    material: paper
+    mechanisms:
+        hides: all
+        custom_model_data: 9234
+    
     flags:
         primary: ov_kiriko
 
