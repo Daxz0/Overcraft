@@ -27,7 +27,7 @@ ov_kiriko:
             - playsound <player.location> <player> sound:entity_player_attack_nodamage volume:2
             - run ov_kiriko_ofudacast_visual
             - if <player.flag[ov.match.supporttarget].is_spawned.if_null[false]>:
-                - run ov_kiriko_ofudaparticle_homing
+                - run ov_kiriko_ofudaparticle_homing def.target:<player.flag[ov.match.supporttarget]>
                 - wait 0.2
             - else:
                 - run ov_kiriko_ofudaparticle_nothoming
@@ -89,6 +89,7 @@ ov_kiriko_ofudaparticle_nothoming:
 ov_kiriko_ofudaparticle_homing:
     type: task
     debug: false
+    definitions: target
     script:
         - definemap data:
             location: <player.eye_location.forward[1.2].right[0.5].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
@@ -98,13 +99,13 @@ ov_kiriko_ofudaparticle_homing:
             arc: 360
         - define locations:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
         - define fw:0
-        - if <player.flag[ov.match.supporttarget].location.if_null["NONE"].equals["NONE"]>:
+        - if <[target].location.if_null["NONE"].equals["NONE"]>:
             - stop
         - foreach <[locations]> as:onelocation:
             #20m/s, 1 block = 0.5m
-            - if <player.flag[ov.match.supporttarget].location.if_null["NONE"].equals["NONE"]>:
+            - if <[target].location.if_null["NONE"].equals["NONE"]>:
                 - stop
-            - define uvec:<[onelocation].sub[<player.flag[ov.match.supporttarget].location.up[1]>].normalize>
+            - define uvec:<[onelocation].sub[<[target].location.up[1]>].normalize>
             - define fw:<[fw].add[0.115]>
             - playeffect effect:redstone at:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
             - if <[loop_index].mod[4]> == 0:
