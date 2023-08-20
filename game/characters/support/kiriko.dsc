@@ -56,21 +56,20 @@ ov_kiriko:
     #kitsune rush
         - define fw:0
         - create fox fox <player.location> save:fox
-        - define fox:<entry[fox].created_npc>
-        - define loc:<player.location>
-        - teleport <[fox]> <[loc]>
-        - narrate <player.location>
-        - narrate <[fox]>
-        - cast speed duration:10s <[fox]>
-        - repeat 10:
-            - define loc:<[loc].forward_flat[2]>
-            - define front_left:<[loc].left[2]>
-            - define back_right:<[front_left].right[4]>
-            - define point:<[front_left].points_between[<[back_right]>].distance[0.1].random>
-            - playeffect effect:redstone at:<[point]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
-            - ~walk <[fox]> <[point]>
-        - remove <[fox]>
-
+        - define npc <entry[fox].created_npc>
+        - define loc <player.location>
+        - teleport <[npc]> <[loc]>
+        - cast speed duration:10s <[npc]>
+        - define beam <[npc].location.points_between[<[npc].location.forward_flat[12.5]>].distance[0.5]>
+        - define total <list>
+        - foreach <[beam]> as:point:
+            - define hit <[point].with_y[<[npc].location.y>].above[2].with_pitch[90].ray_trace[range=200]>
+            - if <[hit].above[0.5].material.is_solid>:
+                - stop
+            - teleport <[npc]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
+            - if <[loop_index].mod[2]>:
+                - wait 1t
+        - remove <[npc]>
 
 ov_kiriko_ofuda_handanim_handler:
     type: world
@@ -101,9 +100,10 @@ ov_kiriko_ofudaparticle_nothoming:
         - foreach <[locations]> as:onelocation:
             #14m/s, 1 block = 0.5m
             - define fw:<[fw].add[0.0805]>
-            - if <[onelocation].material.is_solid>:
+            - define forwardlocation:<[onelocation].forward[<[fw]>]>
+            - if <[forwardlocation].material.is_solid>:
                 - foreach stop
-            - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
+            - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
 
@@ -128,7 +128,10 @@ ov_kiriko_ofudaparticle_homing:
                 - stop
             - define uvec:<[onelocation].sub[<[target].location.up[1]>].normalize>
             - define fw:<[fw].add[0.115]>
-            - playeffect effect:redstone at:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
+            - define forwardlocation:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]>
+            - if <[forwardlocation].material.is_solid>:
+                - foreach stop
+            - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
 
