@@ -5,6 +5,8 @@ ov_walk_direction:
     debug: false
     script:
         - ratelimit <script[ov_walk_direction]> 1t
+        - define prev_loc <location[<player.location.xyz>]>
+        - wait 1t
         - define p_loc <location[<player.location.xyz>]>
         - define p_yaw <player.location.yaw.to_radians>
         - define cross <[p_loc].rotate_around_y[<[p_yaw]>].proc[cross_product].context[<[prev_loc].with_y[<[p_loc].y>].rotate_around_y[<[p_yaw]>]>]>
