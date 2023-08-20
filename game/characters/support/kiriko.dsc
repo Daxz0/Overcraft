@@ -52,6 +52,25 @@ ov_kiriko:
             - playsound <player.location> sound:block_anvil_place pitch:1.3 volume:0.7
             - playeffect effect:portal at:<player.location>
 
+    ultimate:
+    #kitsune rush
+        - define fw:0
+        - create fox fox <player.location> save:fox
+        - define fox:<entry[fox].created_npc>
+        - define loc:<player.location>
+        - teleport <[fox]> <[loc]>
+        - narrate <player.location>
+        - narrate <[fox]>
+        - cast speed duration:10s <[fox]>
+        - repeat 10:
+            - define loc:<[loc].forward_flat[2]>
+            - define front_left:<[loc].left[2]>
+            - define back_right:<[front_left].right[4]>
+            - define point:<[front_left].points_between[<[back_right]>].distance[0.1].random>
+            - playeffect effect:redstone at:<[point]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
+            - ~walk <[fox]> <[point]>
+        - remove <[fox]>
+
 
 ov_kiriko_ofuda_handanim_handler:
     type: world
@@ -82,6 +101,8 @@ ov_kiriko_ofudaparticle_nothoming:
         - foreach <[locations]> as:onelocation:
             #14m/s, 1 block = 0.5m
             - define fw:<[fw].add[0.0805]>
+            - if <[onelocation].material.is_solid>:
+                - foreach stop
             - playeffect effect:redstone at:<[onelocation].forward[<[fw]>]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
@@ -210,3 +231,13 @@ ov_kiriko_swift_step:
     flags:
         ability: true
         ability_2: ov_kiriko
+
+ov_kiriko_kitsune_rush:
+    type: item
+    display name: <&f>Kitsune Rush
+    material: paper
+    mechanisms:
+        hides: all
+    flags:
+        ability: true
+        ultimate: ov_kiriko
