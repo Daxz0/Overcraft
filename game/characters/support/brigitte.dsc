@@ -24,6 +24,7 @@ ov_brigitte:
         - ratelimit <player> 0.6s
         - define val 15
         - define loc <player.location>
+        - define heal false
         - repeat 10:
             - define loc <player.location>
             - define val <[val].add[10]>
@@ -41,10 +42,19 @@ ov_brigitte:
                     - foreach stop
                 - if <[loop_index]> > 10:
                     - playeffect effect:redstone special_data:0.8|<list[#454545|#000000|#5c5c5c].random> at:<[point]> offset:0
-                    - hurt 35 <[point].find_entities[living].within[0.3]> source:<player>
+                    - define target <[point].find_entities[living].within[0.3]>
+                    - if <[target].any>:
+                        - hurt 35 <[target]> source:<player>
+                        - define heal true
             - if !<[stop]>:
                 - playeffect effect:redstone special_data:0.6|<list[#454545|#000000|#5c5c5c].random> at:<[whip].last> offset:0.2 quantity:40
             - wait 0.01
+        - define targets <player.location.find_entities[living].within[10].exclude[<player>]>
+        - repeat 5:
+            - foreach <[targets]> as:p:
+                - if <server.flag[<player.flag[ov.match.team]>].contains[<[p]>]>:
+                    - flag <[p]> ov.match.data.health:+:15
+            - wait 1s
     # secondary:
     secondary_fire:
         - if <player.has_flag[ov.match.character.shield]>:
@@ -61,7 +71,10 @@ ov_brigitte:
         - cast invisibility <player> d:-1t hide_particles no_icon
         - spawn armor_stand[gravity=false;visible=false] <[npc].location.below[0.5].backward[<[dist]>]> save:cam
         - define cam <entry[cam].spawned_entity>
-        - spawn slime[size=5;has_ai=false;visible=false;max_health=300;health=300] save:shieldHitbox
+        - if <player.has_flag[ov.character.rally]>:
+            - spawn slime[size=5;has_ai=false;visible=false;max_health=750;health=750] save:shieldHitbox
+        - else:
+            - spawn slime[size=5;has_ai=false;visible=false;max_health=300;health=300] save:shieldHitbox
         - define hitbox <entry[shieldHitbox].spawned_entity>
         - flag <[hitbox]> shieldHitbox:<player>
         - mount <player>|<[cam]>
@@ -183,6 +196,17 @@ ov_brigitte:
         #rally
 
         - flag <player> ov.match.character.rally expire:10s
+        - cast speed amplifier:0 <player> hide_particles no_icon
+
+        - repeat 7:
+            - define targets <player.location.find_entities[living].within[8].exclude[<player>]>
+            - foreach <[targets]> as:p:
+                - if <server.flag[<player.flag[ov.match.team]>].contains[<[p]>]>:
+                    - if <[p].flag[ov.match.data.ohp]> > 100:
+                        - flag <[p]> ov.match.data.ohp:100 expire:30s
+                        - repeat stop
+                    - flag <[p]> ov.match.data.ohp:+:15 expire:30s
+            - wait 0.5s
 
 
 ov_brigitte_handler:
