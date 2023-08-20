@@ -113,6 +113,12 @@ ov_brigitte:
             - if <[loop_index].mod[2]>:
                 - wait 1t
 
+    ability_1:
+        #heal pack
+
+        - if <player.eye_location.ray_trace_target[range=25;entities=*;fluids=false;nonsolids=false]>:
+            # steal kiriko heal pack here
+
 
     ability_2:
         #whip shot
@@ -173,6 +179,10 @@ ov_brigitte:
                 - define chain <[data].proc[circlegen].combine.reverse>
                 - playeffect at:<[chain]> effect:redstone special_data:0.45|#5c5c5c offset:0
                 - wait 1t
+    ultimate:
+        #rally
+
+        - flag <player> ov.match.character.rally expire:10s
 
 
 ov_brigitte_handler:

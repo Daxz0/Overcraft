@@ -18,6 +18,7 @@ ov_health_handler:
             - define target <context.entity>
             - define hp <[target].flag[ov.match.data.health].if_null[<[target].health>].round>
             - define mhp <[target].flag[ov.match.data.maxhealth].if_null[<[target].health_max>].round>
+            - define ohp <[target].flag[ov.match.data.overhealth].if_null[0].round>
 
             - definemap progressbar:
                 element: "❚"
@@ -92,6 +93,8 @@ ov_health_display:
 
         - define hp <player.flag[ov.match.data.health].round>
         - define mhp <player.flag[ov.match.data.maxhealth].round>
+        - define ohp <player.flag[ov.match.data.ohp].if_null[0]>
+
 
         - definemap progressbar:
             element: "❚"
@@ -100,7 +103,16 @@ ov_health_display:
             size: <[mhp].div[10]>
             currentValue: <[hp]>
             maxValue: <[mhp]>
-        - actionbar "<&f><&l><[hp]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar]>"
+
+        - definemap progressbar_ohp:
+            element: "❚"
+            color: <&c>
+            barColor: <gray>
+            size: <[ohp].div[10]>
+            currentValue: <[ohp]>
+            maxValue: <[ohp]>
+
+        - actionbar "<&f><&l><[hp].add[<[ohp]>]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar]><[progressbar_ohp].proc[progressbar]>"
 
 ov_health_regeneration:
     type: task
