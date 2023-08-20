@@ -103,6 +103,9 @@ ov_kiriko_ofudaparticle_nothoming:
             - define forwardlocation:<[onelocation].forward[<[fw]>]>
             - if <[forwardlocation].material.is_solid>:
                 - foreach stop
+            - if <[forwardlocation].find.living_entities.within[0.2].first.is_living.if_null[false]>:
+                - heal <[forwardlocation].find.living_entities.within[0.2].first> 13
+                - foreach stop
             - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#33ffff].random>
             - if <[loop_index].mod[4]> == 0:
                 - wait 1t
@@ -130,6 +133,9 @@ ov_kiriko_ofudaparticle_homing:
             - define fw:<[fw].add[0.115]>
             - define forwardlocation:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]>
             - if <[forwardlocation].material.is_solid>:
+                - foreach stop
+            - if <[forwardlocation].find.living_entities.within[0.2].first.is_living.if_null[false]>:
+                - heal <[forwardlocation].find.living_entities.within[0.2].first> 13
                 - foreach stop
             - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
             - if <[loop_index].mod[4]> == 0:
