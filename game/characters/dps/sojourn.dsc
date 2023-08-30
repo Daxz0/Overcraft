@@ -22,16 +22,7 @@ ov_sojourn:
         # Hitscan
         - ratelimit <player> 0.071
         - repeat 3:
-            - define hand_pos <player.eye_location.below[0.2].right[0.2]>
-            - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air].above[0.2].right[0.4]||null>
-            - if <[hit]> != null:
-                - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
-                    - playeffect effect:redstone offset:0 special_data:0.3|#00aaee at:<[point]>
-                - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
-                - if <[target].any>:
-                    - flag <player> ov.match.character.charge:<player.flag[ov.match.character.charge].add[5].min[100].if_null[1]>
-                    - hurt 9 <[target]> source:<player>
-                - run ov_sojourn_railgun_display
+            - run ov_sojourn_primary_fire
             - wait 2t
 
     secondary_fire:
@@ -116,6 +107,21 @@ ov_sojourn:
         - flag <player> ov.match.character.overclocked:!
         - bossbar auto <player.uuid>_charge color:white
 
+ov_sojourn_primary_fire:
+    type: task
+    debug: false
+    script:
+        - define hand_pos <player.eye_location.below[0.2].right[0.2]>
+        - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air;range=80].above[0.2].right[0.4]||null>
+        - if <[hit]> != null:
+            - foreach <[hand_pos].points_between[<[hit]>].distance[1.2]> as:point:
+                - playeffect effect:redstone offset:0 special_data:0.3|#00aaee at:<[point]>
+                - wait 1t
+            - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
+            - if <[target].any.if_null[false]>:
+                - flag <player> ov.match.character.charge:<player.flag[ov.match.character.charge].add[5].min[100].if_null[1]>
+                - hurt 9 <[target]> source:<player>
+            - run ov_sojourn_railgun_display
 
 ov_sojourn_jump_detection:
     type: task
