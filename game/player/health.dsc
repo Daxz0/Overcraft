@@ -115,8 +115,6 @@ ov_health_display:
 
         #armor??
         - define ar <player.flag[ov.match.data.ar].if_null[0]>
-        - define mar <player.flag[ov.match.data.mar].if_null[0]>
-
 
         - definemap progressbar:
             element: "❚"
@@ -126,30 +124,33 @@ ov_health_display:
             currentValue: <[hp]>
             maxValue: <[mhp]>
 
-        - definemap progressbar_ohp:
-            element: "❚"
-            color: <&a>
-            barColor: <gray>
-            size: <[ohp].div[10]>
-            currentValue: <[ohp]>
-            maxValue: <[ohp]>
+        - if <[ohp]> > 0:
+            - definemap progressbar_ohp:
+                element: "❚"
+                color: <&a>
+                barColor: <gray>
+                size: <[ohp].div[10]>
+                currentValue: <[ohp]>
+                maxValue: <[ohp]>
 
-        - definemap progressbar_sh:
-            element: "❚"
-            color: <&b>
-            barColor: <gray>
-            size: <[msh].div[10]>
-            currentValue: <[sh]>
-            maxValue: <[msh]>
-        - definemap progressbar_ar:
-            element: "❚"
-            color: <&e>
-            barColor: <gray>
-            size: <[mar].div[10]>
-            currentValue: <[ar]>
-            maxValue: <[mar]>
+        - if <[msh]> > 0:
+            - definemap progressbar_sh:
+                element: "❚"
+                color: <&b>
+                barColor: <gray>
+                size: <[msh].div[10]>
+                currentValue: <[sh]>
+                maxValue: <[msh]>
+        - if <[ar]> > 0:
+            - definemap progressbar_ar:
+                element: "❚"
+                color: <&e>
+                barColor: <gray>
+                size: <[ar].div[10].if_null[0]>
+                currentValue: <[ar]>
+                maxValue: <[ar]>
 
-        - actionbar "<&f><&l><[hp].add[<[ohp]>]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar]><[progressbar_ar].proc[progressbar]><[progressbar_sh].proc[progressbar]><[progressbar_ohp].proc[progressbar]>"
+        - actionbar "<&f><&l><[hp].add[<[ohp]>]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar].if_null[<empty>]><[progressbar_ar].proc[progressbar].if_null[<empty>]><[progressbar_sh].proc[progressbar].if_null[<empty>]><[progressbar_ohp].proc[progressbar].if_null[<empty>]>"
 
 ov_health_regeneration:
     type: task
@@ -161,7 +162,6 @@ ov_health_regeneration:
         - define sh <player.flag[ov.match.data.sh].if_null[0]>
         - define msh <player.flag[ov.match.data.msh].if_null[0]>
         - define ar <player.flag[ov.match.data.ar].if_null[0]>
-        - define mar <player.flag[ov.match.data.mar].if_null[0]>
 
         - define chrole <player.flag[ov.match.data.role].if_null[nulled]>
 

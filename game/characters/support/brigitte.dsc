@@ -6,9 +6,9 @@ ov_brigitte_data:
     primary_fire: ov_brigitte_rocket_flail
     secondary_fire: ov_brigitte_shield
 
-
+    ability_1: ov_brigitte_repair_pack
     ability_2: ov_brigitte_whip_shot
-    ultimate: ov_brigitte_pulse_bomb
+    ultimate: ov_brigitte_rally
 
     ammo: 40
 
@@ -52,7 +52,7 @@ ov_brigitte:
         - define targets <player.location.find_entities[living].within[10].exclude[<player>]>
         - repeat 5:
             - foreach <[targets]> as:p:
-                - if <server.flag[<player.flag[ov.match.team]>].contains[<[p]>]>:
+                - if <server.flag[<player.flag[ov.match.team].if_null[<empty>]>].contains[<[p]>].if_null[<list>]>:
                     - flag <[p]> ov.match.data.health:+:15
             - wait 1s
     # secondary:
@@ -128,8 +128,10 @@ ov_brigitte:
 
     ability_1:
         #heal pack
-        - define target <player.eye_location.ray_trace_target[range=25;entities=*;fluids=false;nonsolids=false]>
-        - if <[target].any>:
+        - define target <player.eye_location.forward[0.2].ray_trace_target[range=25;entities=*;fluids=false;nonsolids=false;ignore=<player>].if_null[null]>
+        - if <[target]> == null:
+            - stop
+        - if <[target].is_living>:
             - run ov_brigitte_pack def:<[target]>
 
 
@@ -196,7 +198,8 @@ ov_brigitte:
         #rally
 
         - flag <player> ov.match.character.rally expire:10s
-        - cast speed amplifier:0 <player> hide_particles no_icon
+        - flag <player> ov.match.data.ar:100
+        - cast speed amplifier:0 <player> hide_particles no_icon duration:10s
 
         - repeat 7:
             - define targets <player.location.find_entities[living].within[8].exclude[<player>]>
@@ -285,38 +288,53 @@ ov_brigitte_repair_pack:
     flags:
         ability_1: ov_brigitte
         ability: true
+ov_brigitte_rally:
+    type: item
+    display name: <&f>Rally
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9231
+    flags:
+        ultimate: ov_brigitte
+        ability: true
 
 ov_brigitte_pack:
     type: task
     debug: false
     definitions: target
     script:
-        - definemap data:
-            location: <player.eye_location.forward[1.2].right[0.5].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
-            radius: 0.3
-            rotation: <util.random_decimal.mul[360]>
-            points: 28
-            arc: 360
-        - define locations:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
-        - define fw:0
-        - if <[target].location.if_null["NONE"].equals["NONE"]>:
-            - stop
-        - foreach <[locations]> as:onelocation:
-            #20m/s, 1 block = 0.5m
-            - if <[target].location.if_null["NONE"].equals["NONE"]>:
-                - stop
-            - define uvec:<[onelocation].sub[<[target].location.up[1]>].normalize>
-            - define fw:<[fw].add[0.115]>
-            - define forwardlocation:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]>
-            - if <[forwardlocation].material.is_solid>:
-                - foreach stop
-            - if <[forwardlocation].find.living_entities.within[0.2].first.is_living.if_null[false]>:
-                - flag <[target]> ov.match.data.health:+:25
-                - run ov_brigitte_heal def:<[target]>
-                - foreach stop
-            - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
-            - if <[loop_index].mod[5]> == 0:
-                - wait 1t
+        # - define beam <player.eye_location.right[0.4].below[0.3].points_between[<[target].location.above[0.3].random_offset[0.5]>].distance[0.3]>
+
+        # - foreach <[beam]> as:p:
+        #     - playeffect effect:redstone at:<[p]> offset:0.05 quantity:2 special_data:0.4|#ffee00
+
+        #     - if <[loop_index].mod[2]> == 0:
+        #         - wait 1t
+
+        - define for 1
+        - define p <player.eye_location.right[0.4].below[0.3]>
+        - while <[p].distance[<[target].location>].if_null[0]> > 0.9:
+            # - narrate <[p].distance[<[target].location>]>
+            - define beam <[p].points_between[<[target].location.above[1].random_offset[0.5]>].distance[0.3]>
+            - if <[for]> > <[beam].size>:
+                - define for <[beam].size>
+            - define p <[beam].get[<[for]>]>
+            - playeffect effect:redstone at:<[p]> offset:0.1 quantity:3 special_data:0.7|#ffee00
+            - define for <[for].add[1]>
+            - wait 1t
+        - flag <[target]> ov.match.data.health:+:25
+        - run ov_brigitte_heal def:<[target]>
+        - repeat 40:
+            - define beam <[p].points_between[<[target].location.above[1].random_offset[0.5]>].distance[0.3]>
+            - if <[for]> > <[beam].size>:
+                - define for <[beam].size>
+            - define p <[beam].get[<[for]>]>
+            - playeffect effect:redstone at:<[p]> offset:0.15 quantity:5 special_data:0.7|#ffee00
+            - define for <[for].add[1]>
+            - wait 1t
+
+
 
 ov_brigitte_heal:
     type: task
