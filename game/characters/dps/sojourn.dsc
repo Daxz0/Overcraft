@@ -115,7 +115,7 @@ ov_sojourn_primary_fire:
         - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air;range=80].above[0.2].right[0.4]||null>
         - if <[hit]> != null:
             - foreach <[hand_pos].points_between[<[hit]>].distance[1.2]> as:point:
-                - playeffect effect:redstone offset:0 special_data:0.3|#00aaee at:<[point]>
+                - playeffect effect:redstone offset:0 special_data:0.5|#00aaee at:<[point]>
                 - wait 1t
             - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
             - if <[target].any.if_null[false]>:
