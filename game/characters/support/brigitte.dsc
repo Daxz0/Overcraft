@@ -128,9 +128,9 @@ ov_brigitte:
 
     ability_1:
         #heal pack
-
-        - if <player.eye_location.ray_trace_target[range=25;entities=*;fluids=false;nonsolids=false]>:
-            # steal kiriko heal pack here
+        - define target <player.eye_location.ray_trace_target[range=25;entities=*;fluids=false;nonsolids=false]>
+        - if <[target].any>:
+            - run ov_brigitte_pack def:<[target]>
 
 
     ability_2:
@@ -274,3 +274,55 @@ ov_brigitte_whip_shot:
     flags:
         ability_2: ov_brigitte
         ability: true
+
+ov_brigitte_repair_pack:
+    type: item
+    display name: <&f>Repair Pack
+    material: copper_ingot
+    mechanisms:
+        hides: all
+        custom_model_data: 9230
+    flags:
+        ability_1: ov_brigitte
+        ability: true
+
+ov_brigitte_pack:
+    type: task
+    debug: false
+    definitions: target
+    script:
+        - definemap data:
+            location: <player.eye_location.forward[1.2].right[0.5].with_pitch[<player.location.pitch>].with_yaw[<player.location.yaw>]>
+            radius: 0.3
+            rotation: <util.random_decimal.mul[360]>
+            points: 28
+            arc: 360
+        - define locations:<[data].proc[circlegen].parse[points_between[<player.location>].distance[0.15].get[1].to[3]].combine.reverse>
+        - define fw:0
+        - if <[target].location.if_null["NONE"].equals["NONE"]>:
+            - stop
+        - foreach <[locations]> as:onelocation:
+            #20m/s, 1 block = 0.5m
+            - if <[target].location.if_null["NONE"].equals["NONE"]>:
+                - stop
+            - define uvec:<[onelocation].sub[<[target].location.up[1]>].normalize>
+            - define fw:<[fw].add[0.115]>
+            - define forwardlocation:<[onelocation].sub[<[uvec].if_null[<location[0,0,0]>].mul[<[fw]>]>]>
+            - if <[forwardlocation].material.is_solid>:
+                - foreach stop
+            - if <[forwardlocation].find.living_entities.within[0.2].first.is_living.if_null[false]>:
+                - flag <[target]> ov.match.data.health:+:25
+                - run ov_brigitte_heal def:<[target]>
+                - foreach stop
+            - playeffect effect:redstone at:<[forwardlocation]> offset:0.0 quantity:5 visibility:100 special_data:0.5|<list[#eeff00].random>
+            - if <[loop_index].mod[5]> == 0:
+                - wait 1t
+
+ov_brigitte_heal:
+    type: task
+    debug: false
+    definitions: target
+    script:
+        - repeat 2:
+            - flag <[target]> ov.match.data.health:+:100
+            - wait 1s
