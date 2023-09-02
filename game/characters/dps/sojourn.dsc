@@ -78,7 +78,7 @@ ov_sojourn:
         - wait 3t
         - define npc_velocity <entry[powerslide_stand].created_npc.velocity>
         - mount cancel <player>
-        - if <player.flag[ov.match.character.jumpused]>:
+        - if <player.flag[ov.match.character.jumpused].if_null[false]>:
             - adjust <player> velocity:<[npc_velocity]>
         - else:
             - teleport <player> <[player_location]>
@@ -129,7 +129,7 @@ ov_sojourn_jump_detection:
     script:
         - while <player.has_flag[ov.match.character.jumpnpc].if_null[false]>:
             - teleport <player.flag[ov.match.character.slidenpc]> <player.flag[ov.match.character.jumpnpc].location>
-            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].yaw>].left[0.5]>
+            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].if_null[<player.location>].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].if_null[<player.location>].yaw>].left[0.5]>
             - sleep npc:<player.flag[ov.match.character.slidenpc]>
             - if <player.eye_location.find_blocks[!air].within[0.5].any>:
                 - queue <queue[<player.flag[ov.match.character.slide.queue]>]> stop
