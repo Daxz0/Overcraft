@@ -329,6 +329,7 @@ ov_ashe_viper:
 
         maxDamage: 40
         minDamage: 12
+        firerate: 0.266
 
         spread: 1.85
 

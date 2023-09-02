@@ -9,6 +9,17 @@ ov_health_handler:
             - define player <context.entity>
             - define hp <[player].flag[ov.match.data.health]>
             - define mhp <[player].flag[ov.match.data.maxhealth]>
+            - define ohp <[player].flag[ov.match.data.ohp].if_null[0]>
+            - define sh <[player].flag[ov.match.data.sh].if_null[0]>
+            - define msh <[player].flag[ov.match.data.msh].if_null[0]>
+            - define ar <[player].flag[ov.match.data.ar].if_null[0]>
+            - define mar <[player].flag[ov.match.data.mar].if_null[0]>
+
+
+            - if <[ar]> >= <[dmg]> && <[ar]> > 0:
+                - flag <[player]> ov.match.data.ar:-:<[dmg]>
+                - define dmg <[dmg].sub[<[dmg].mul[0.3]>]>
+
             - flag <[player]> ov.match.data.health:-:<[dmg]>
 
             - inject ov_health_handler.hurt_sound
@@ -93,10 +104,17 @@ ov_health_display:
 
         - define hp <player.flag[ov.match.data.health].round>
         - define mhp <player.flag[ov.match.data.maxhealth].round>
+
+
+        #overhealth
         - define ohp <player.flag[ov.match.data.ohp].if_null[0]>
+
+        #shield
         - define sh <player.flag[ov.match.data.sh].if_null[0]>
         - define msh <player.flag[ov.match.data.msh].if_null[0]>
 
+        #armor??
+        - define ar <player.flag[ov.match.data.ar].if_null[0]>
 
         - definemap progressbar:
             element: "❚"
@@ -106,32 +124,44 @@ ov_health_display:
             currentValue: <[hp]>
             maxValue: <[mhp]>
 
-        - definemap progressbar_ohp:
-            element: "❚"
-            color: <&a>
-            barColor: <gray>
-            size: <[ohp].div[10]>
-            currentValue: <[ohp]>
-            maxValue: <[ohp]>
+        - if <[ohp]> > 0:
+            - definemap progressbar_ohp:
+                element: "❚"
+                color: <&a>
+                barColor: <gray>
+                size: <[ohp].div[10]>
+                currentValue: <[ohp]>
+                maxValue: <[ohp]>
 
-        - definemap progressbar_sh:
-            element: "❚"
-            color: <&a>
-            barColor: <gray>
-            size: <[sh].div[10]>
-            currentValue: <[sh]>
-            maxValue: <[sh]>
+        - if <[msh]> > 0:
+            - definemap progressbar_sh:
+                element: "❚"
+                color: <&b>
+                barColor: <gray>
+                size: <[msh].div[10]>
+                currentValue: <[sh]>
+                maxValue: <[msh]>
+        - if <[ar]> > 0:
+            - definemap progressbar_ar:
+                element: "❚"
+                color: <&e>
+                barColor: <gray>
+                size: <[ar].div[10].if_null[0]>
+                currentValue: <[ar]>
+                maxValue: <[ar]>
 
-        - actionbar "<&f><&l><[hp].add[<[ohp]>]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar]><[progressbar_sh].proc[progressbar]><[progressbar_ohp].proc[progressbar]>"
+        - actionbar "<&f><&l><[hp].add[<[ohp]>]> <&f>/ <[mhp]>    <[progressbar].proc[progressbar].if_null[<empty>]><[progressbar_ar].proc[progressbar].if_null[<empty>]><[progressbar_sh].proc[progressbar].if_null[<empty>]><[progressbar_ohp].proc[progressbar].if_null[<empty>]>"
 
 ov_health_regeneration:
     type: task
     debug: false
     script:
-        - define hp <player.flag[ov.match.data.health]>
-        - define mhp <player.flag[ov.match.data.maxhealth]>
-        - define sh <player.flag[ov.match.data.shield].if_null[0]>
-        - define msh <player.flag[ov.match.data.maxshield].if_null[0]>
+        - define hp <player.flag[ov.match.data.health].round>
+        - define mhp <player.flag[ov.match.data.maxhealth].round>
+        - define ohp <player.flag[ov.match.data.ohp].if_null[0]>
+        - define sh <player.flag[ov.match.data.sh].if_null[0]>
+        - define msh <player.flag[ov.match.data.msh].if_null[0]>
+        - define ar <player.flag[ov.match.data.ar].if_null[0]>
 
         - define chrole <player.flag[ov.match.data.role].if_null[nulled]>
 
@@ -141,18 +171,21 @@ ov_health_regeneration:
         - if <[hp]> < 0:
             - flag <player> ov.match.data.health:0
 
-        - if <[sh]> > <[msh]>:
-            - flag <player> ov.match.data.shield:<[msh]>
-        - if <[sh]> < 0:
-            - flag <player> ov.match.data.shield:0
 
         - if <[hp]> < <[mhp].div[5]> && <[hp]> > 0 && !<player.has_flag[ov.match.data.lowhp]>:
             - flag <player> ov.match.data.lowhp
             - run ov_health_handler.low_hp
         - else:
             - flag <player> ov.match.data.lowhp:!
-        - if <player.has_flag[ov.match.character.shields]> && !<player.has_flag[ov.match.data.incombat]>:
-            - flag <player> ov.match.shield:+:20
+
+        - if <[msh]> > 0 && !<player.has_flag[ov.match.data.incombat]>:
+            - if <[sh]> > <[msh]>:
+                - flag <player> ov.match.data.shield:<[msh]>
+            - if <[sh]> < 0:
+                - flag <player> ov.match.data.shield:0
+            - else:
+                - flag <player> ov.match.data.sh:+:20
+
         - if <[chrole]> == support && !<player.has_flag[ov.match.data.incombat]>:
             - flag <player> ov.match.health:+:20
 

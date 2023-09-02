@@ -78,7 +78,7 @@ ov_sojourn:
         - wait 3t
         - define npc_velocity <entry[powerslide_stand].created_npc.velocity>
         - mount cancel <player>
-        - if <player.flag[ov.match.character.jumpused]>:
+        - if <player.flag[ov.match.character.jumpused].if_null[false]>:
             - adjust <player> velocity:<[npc_velocity]>
         - else:
             - teleport <player> <[player_location]>
@@ -115,7 +115,7 @@ ov_sojourn_primary_fire:
         - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air;range=80].above[0.2].right[0.4]||null>
         - if <[hit]> != null:
             - foreach <[hand_pos].points_between[<[hit]>].distance[1.2]> as:point:
-                - playeffect effect:redstone offset:0 special_data:0.3|#00aaee at:<[point]>
+                - playeffect effect:redstone offset:0 special_data:0.5|#00aaee at:<[point]>
                 - wait 1t
             - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
             - if <[target].any.if_null[false]>:
@@ -129,7 +129,7 @@ ov_sojourn_jump_detection:
     script:
         - while <player.has_flag[ov.match.character.jumpnpc].if_null[false]>:
             - teleport <player.flag[ov.match.character.slidenpc]> <player.flag[ov.match.character.jumpnpc].location>
-            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].yaw>].left[0.5]>
+            - look <player.flag[ov.match.character.slidenpc]> <player.eye_location.with_pitch[<player.flag[ov.match.character.jumpused].if_null[<player.location>].pitch>].with_yaw[<player.flag[ov.match.character.jumpused].if_null[<player.location>].yaw>].left[0.5]>
             - sleep npc:<player.flag[ov.match.character.slidenpc]>
             - if <player.eye_location.find_blocks[!air].within[0.5].any>:
                 - queue <queue[<player.flag[ov.match.character.slide.queue]>]> stop
