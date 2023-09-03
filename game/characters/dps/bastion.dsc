@@ -21,7 +21,6 @@ ov_bastion:
     primary_fire:
         - stop if:<player.has_flag[ov.match.character.artillery]>
         - if <player.item_in_hand.script.name> == ov_bastion_recon:
-            - ratelimit <player> 0.2
 
             - define loc <player.eye_location>
 
@@ -262,6 +261,7 @@ ov_bastion_recon:
 
         maxDamage: 25
         minDamage: 7.5
+        firerate: 0.2
 
         spread: 0
 
@@ -282,6 +282,7 @@ ov_bastion_assault:
 
         maxDamage: 12
         minDamage: 3.6
+        firerate: 0.08
 
         spread: 2
 
