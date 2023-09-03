@@ -22,8 +22,6 @@ ov_ashe:
 
         # Hitscan
 
-        - ratelimit <player> 0.266
-
         - define loc <player.eye_location>
 
         - define spread 1.85

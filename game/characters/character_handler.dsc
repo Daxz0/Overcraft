@@ -10,7 +10,12 @@ ov_weapon_handle:
     events:
         on player right clicks block with:item_flagged:primary:
             - determine passively cancelled
-            - run <context.item.flag[primary]>.primary_fire
+
+            #add firerate script here
+
+            - flag <player> ov.match.data.firing expire:2t
+
+            - run ov_firerate_handler def:<context.item.flag[firerate]>|<context.item.flag[primary]>
 
         on player right clicks block with:item_flagged:secondary:
             - determine passively cancelled
