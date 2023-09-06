@@ -23,8 +23,6 @@ ov_tracer:
 
         # Hitscan
 
-        - ratelimit <player> 0.048
-
         - define loc <player.eye_location>
 
         - define spread 3.6
@@ -173,6 +171,7 @@ ov_tracer_pistols:
     flags:
         primary: ov_tracer
 
+        firerate: 0.048
         maxDamage: 5.5
         minDamage: 1.5
 
