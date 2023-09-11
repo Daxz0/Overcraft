@@ -37,6 +37,14 @@ ov_kiriko:
     secondary_fire:
         #kunai (no bloom or falloff)
         - ratelimit <player> 0.55s
+        - playsound <player.location> sound:entity_player_attack_sweep volume:0.4
+        - if <player.inventory.slot[2].equals[<item[ov_kiriko_kunai]>]>:
+            - inventory set destination:<player.inventory> origin:<item[ov_kiriko_kunai_l]> slot:2
+        - else:
+            - if <player.inventory.slot[2].equals[<item[ov_kiriko_kunai_l]>]>:
+                - inventory set destination:<player.inventory> origin:<item[ov_kiriko_kunai_r]> slot:2
+            - else:
+                - inventory set destination:<player.inventory> origin:<item[ov_kiriko_kunai_l]> slot:2
         - ~push arrow origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> save:kunai script:ov_kiriko_kunaicollide
         - remove <entry[kunai].pushed_entities>
 
@@ -202,7 +210,7 @@ ov_kiriko_ofuda_cast:
     mechanisms:
         hides: all
         custom_model_data: 9234
-    
+
     flags:
         primary: ov_kiriko
 
@@ -216,6 +224,27 @@ ov_kiriko_kunai:
     flags:
         secondary: ov_kiriko
 
+ov_kiriko_kunai_l:
+    type: item
+    display name: <&f>Kunai
+    material: arrow
+    mechanisms:
+        hides: all
+        custom_model_data: 9238
+
+    flags:
+        secondary: ov_kiriko
+
+ov_kiriko_kunai_r:
+    type: item
+    display name: <&f>Kunai
+    material: arrow
+    mechanisms:
+        hides: all
+        custom_model_data: 9239
+
+    flags:
+        secondary: ov_kiriko
 
 ov_kiriko_suzu:
     type: item
