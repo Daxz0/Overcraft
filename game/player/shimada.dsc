@@ -10,7 +10,7 @@ ow_shimada:
         - ratelimit <player> 1t
         - if <player.location.pitch> > 10:
             # do not climb if not looking up
-            # TODO: don't require movement to check
+            #TODO: don't require movement to check
             - stop
         #TODO: DO NOT CLIMB STAIRS
         - if <context.new_location.forward_flat.material.is_solid> || <context.new_location.forward_flat.above.material.is_solid>:

@@ -45,8 +45,9 @@ ov_kiriko:
                 - inventory set destination:<player.inventory> origin:<item[ov_kiriko_kunai_r]> slot:2
             - else:
                 - inventory set destination:<player.inventory> origin:<item[ov_kiriko_kunai_l]> slot:2
-        - ~push arrow origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> save:kunai script:ov_kiriko_kunaicollide
-        - remove <entry[kunai].pushed_entities>
+        #- ~push arrow origin:<player.eye_location> speed:1.5 no_rotate no_damage destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> save:kunai script:ov_kiriko_kunaicollide
+        #- remove <entry[kunai].pushed_entities>
+        - run ov_kiriko_kunaiparticle
 
     ability_1:
     #suzu
@@ -70,6 +71,7 @@ ov_kiriko:
         - cast speed duration:10s <[npc]>
         - define beam <[npc].location.points_between[<[npc].location.forward_flat[12.5]>].distance[0.5]>
         - define total <list>
+        - define structures <list>
         - foreach <[beam]> as:point:
             - define hit <[point].with_y[<[npc].location.y>].above[2].with_pitch[90].ray_trace[range=200]>
             - if <[hit].above[0.5].material.is_solid>:
@@ -77,7 +79,17 @@ ov_kiriko:
             - teleport <[npc]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
             - if <[loop_index].mod[2]>:
                 - wait 1t
+            # this line is for spawning the structures at a certain interval
+            # nothing to do with tick stuff
+            - if <[loop_index].mod[8].equals[0]>:
+                - spawn item_display[item=ov_kiriko_kitsune_rush_structure] <[npc].location> save:structure
+                - adjust <entry[structure].spawned_entity> scale:<location[4,4,4]>
+                - adjust <entry[structure].spawned_entity> left_rotation:<[npc].eye_location.direction.vector.quaternion_between_vectors[<[npc].location.direction.vector>]>
+                - define structures <[structures].include[<entry[structure].spawned_entity>]>
         - remove <[npc]>
+        - wait 10.5s
+        - foreach <[structures]> as:structure:
+            - remove <[structure]>
 
 ov_kiriko_ofuda_handanim_handler:
     type: world
@@ -92,6 +104,20 @@ ov_kiriko_ofuda_handanim_handler:
                     - else:
                         - inventory set o:ov_kiriko_ofuda slot:1
 
+ov_kiriko_kunaiparticle:
+    type: task
+    debug: false
+    script:
+        - define hand_pos <player.eye_location.below[0.2].right[0.2]>
+        - define hit <[hand_pos].ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air;range=80].above[0.2].right[0.4]||null>
+        - if <[hit]> != null:
+            - foreach <[hand_pos].points_between[<[hit]>].distance[0.9]> as:point:
+                - playeffect effect:redstone offset:0 special_data:0.5|#33ffff at:<[point]>
+                - if <[loop_index].mod[4]> == 0:
+                    - wait 1t
+            - define target <[hit].find_entities[!item].within[0.1].exclude[<player>].if_null[null]>
+            - if <[target].any.if_null[false]>:
+                - hurt 9 <[target]> source:<player>
 
 ov_kiriko_ofudaparticle_nothoming:
     type: task
@@ -279,3 +305,11 @@ ov_kiriko_kitsune_rush:
     flags:
         ability: true
         ultimate: ov_kiriko
+
+
+ov_kiriko_kitsune_rush_structure:
+    type: item
+    material: stick
+    mechanisms:
+        hides: all
+        custom_model_data: 2200
