@@ -82,9 +82,14 @@ ov_kiriko:
             # this line is for spawning the structures at a certain interval
             # nothing to do with tick stuff
             - if <[loop_index].mod[8].equals[0]>:
+                #huge shoutout to Max^ for getting this to always point the correct direction
                 - spawn item_display[item=ov_kiriko_kitsune_rush_structure] <[npc].location> save:structure
                 - adjust <entry[structure].spawned_entity> scale:<location[4,4,4]>
-                - adjust <entry[structure].spawned_entity> left_rotation:<[npc].eye_location.direction.vector.quaternion_between_vectors[<[npc].location.direction.vector>]>
+                - define x_q <location[1,0,0].to_axis_angle_quaternion[<[npc].location.pitch.to_radians>]>
+                - define yaw <[npc].location.yaw.to_radians.add[<util.pi>].mul[-1]>
+                - define y_q <location[0,1,0].to_axis_angle_quaternion[<[yaw]>]>
+                - define rotation <[x_q].mul[<[y_q]>]>
+                - adjust <entry[structure].spawned_entity> left_rotation:<[rotation]>
                 - define structures <[structures].include[<entry[structure].spawned_entity>]>
         - remove <[npc]>
         - wait 10.5s
