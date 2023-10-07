@@ -69,7 +69,7 @@ ov_kiriko:
         - define loc <player.location>
         - teleport <[npc]> <[loc]>
         - cast speed duration:10s <[npc]>
-        - define beam <[npc].location.points_between[<[npc].location.forward_flat[12.5]>].distance[0.5]>
+        - define beam <[npc].location.points_between[<[npc].location.forward_flat[12.5]>].distance[0.25]>
         - define total <list>
         - define structures <list>
         - foreach <[beam]> as:point:
@@ -77,11 +77,12 @@ ov_kiriko:
             - if <[hit].above[0.5].material.is_solid>:
                 - stop
             - teleport <[npc]> <[hit].with_pitch[0].with_yaw[<player.location.yaw>]> relative
+            - run ov_kiriko_fox_footstep def:<[npc]>
             - if <[loop_index].mod[2]>:
                 - wait 1t
             # this line is for spawning the structures at a certain interval
             # nothing to do with tick stuff
-            - if <[loop_index].mod[8].equals[0]>:
+            - if <[loop_index].mod[16].equals[0]>:
                 #huge shoutout to Max^ for getting this to always point the correct direction
                 - spawn item_display[item=ov_kiriko_kitsune_rush_structure] <[npc].location> save:structure
                 - adjust <entry[structure].spawned_entity> scale:<location[4,4,4]>
@@ -95,6 +96,16 @@ ov_kiriko:
         - wait 10.5s
         - foreach <[structures]> as:structure:
             - remove <[structure]>
+
+ov_kiriko_fox_footstep:
+    type: task
+    debug: false
+    definitions: fox
+    script:
+        - repeat 19:
+            - define step_dist <util.random.decimal[0.2].to[0.5]>
+            - playeffect effect:redstone offset:0 special_data:0.5|#33ffff at:<[fox].location.random_offset[0.2,0,0.2].right[<[step_dist]>].random_offset[0.1,0,0.1]>
+            - playeffect effect:redstone offset:0 special_data:0.5|#33ffff at:<[fox].location.random_offset[0.2,0,0,2].left[<[step_dist]>].random_offset[0.1,0,0.1]>
 
 ov_kiriko_ofuda_handanim_handler:
     type: world
@@ -122,7 +133,10 @@ ov_kiriko_kunaiparticle:
                     - wait 1t
             - define target <[hit].find_entities[!item].within[0.1].exclude[<player>].if_null[null]>
             - if <[target].any.if_null[false]>:
-                - hurt 9 <[target]> source:<player>
+                - define selected_target <[target].first>
+                - define item <item[ov_kiriko_kunai]>
+                - define damage <[selected_target].proc[ov_damage_task].context[<list_single[<[hand_pos]>].include[<[item]>]>]>
+                - hurt <[damage]> <[selected_target]> source:<player>
 
 ov_kiriko_ofudaparticle_nothoming:
     type: task
@@ -254,6 +268,11 @@ ov_kiriko_kunai:
 
     flags:
         secondary: ov_kiriko
+        headshotMul: 2.5
+        maxDamage: 45
+        minDamage: 45
+        maxDistance: 9999
+        minDistance: 1
 
 ov_kiriko_kunai_l:
     type: item
