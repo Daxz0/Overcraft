@@ -219,10 +219,13 @@ ov_kiriko_suzucollide:
     type: task
     debug: false
     script:
-        - narrate <[location]>
         - playsound <[location]> sound:block_glass_break pitch:2
-        - spawn area_effect_cloud <[location]> save:aec_suzu
-        - adjust <entry[aec_suzu].spawned_entity> particle_color:white
+        - spawn area_effect_cloud[particle_color=white] <[location]> save:aec_suzu
+        #1m=0.5block, actual=5m aoe
+        - define area <[location].to_ellipsoid[2.5,2.5,2.5]>
+        - foreach <[area].living_entities> as:entity:
+            - flag <[entity]> ov.match.suzued:true expire:0.85s
+            - playeffect effect:explosion_large at:<[entity].location>
         - wait 0.85s
         - remove <entry[aec_suzu].spawned_entity>
 
