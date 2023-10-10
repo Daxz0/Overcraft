@@ -51,7 +51,7 @@ ov_kiriko:
 
     ability_1:
     #suzu
-        - shoot snowball[item=ov_kiriko_suzu] origin:<player.eye_location.down[0.9].right[0.2]> height:2 destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> script:ov_kiriko_suzucollide
+        - shoot snowball[item=ov_kiriko_suzu] origin:<player.eye_location.up[0.2]> speed:1.3 destination:<player.eye_location.ray_trace[entities=*;ignore=<player>;fluids=true;nonsolids=true;return=precise;default=air]> script:ov_kiriko_suzucollide
 
 
     ability_2:
