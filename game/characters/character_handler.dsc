@@ -22,6 +22,7 @@ ov_weapon_handle:
                 - if <[loop_index].mod[<[tbs]>]> == <[mod_value]>:
                     - define times_shot <[tbs].equals[1].if_true[<[loop_index]>].if_false[<[loop_index].div[<[tbs]>].round_down.add[1]>]>
                 - run <[gun]>.primary_fire
+                - wait 0.5t
 
         on player right clicks block with:item_flagged:secondary:
             - determine passively cancelled
