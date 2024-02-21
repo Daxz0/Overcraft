@@ -11,18 +11,17 @@ ov_weapon_handle:
         on player right clicks block with:item_flagged:primary:
             - determine passively cancelled
 
-            #add firerate script here
-
-            - flag <player> ov.match.data.firing expire:4t
+            - stop if:<player.has_flag[ov.match.data.firing]>
             - define gun <context.item>
+            - define firerate <[gun].flag[firerate]>
             - define tbs <[gun].flag[firerate]||3.div[0.05]>
             - define mod_value <[tbs].equals[1].if_true[0].if_false[1]>
             - define times_shot 0
+            - flag <player> ov.match.data.firing expire:4t
             - while <player.has_flag[ov.match.data.firing]> && <player.is_online> && <player.item_in_hand.has_flag[primary]||null>:
-                - if <[loop_index].mod[<[tbs]>]> == <[mod_value]>:
-                    - define times_shot <[tbs].equals[1].if_true[<[loop_index]>].if_false[<[loop_index].div[<[tbs]>].round_down.add[1]>]>
+                - flag <player> ov.match.data.firing expire:3t
                 - run <[gun]>.primary_fire
-                - wait 0.5t
+                - wait <[firerate]>
 
         on player right clicks block with:item_flagged:secondary:
             - determine passively cancelled
