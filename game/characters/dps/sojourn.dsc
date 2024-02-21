@@ -45,7 +45,7 @@ ov_sojourn:
                     - define locations <[point]>
                     - if <[loop_index].mod[5]> == 0:
                         - wait 1t
-                - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
+                - define target <[hit].find_entities[living].within[1].exclude[<player>].if_null[null]>
                 - hurt <player.flag[ov.match.character.charge].add[30]> <[target]> source:player
                 - flag <player> ov.match.character.charge:0
                 - run ov_sojourn_railgun_display
@@ -116,11 +116,11 @@ ov_sojourn_primary_fire:
         - if <[hit]> != null:
             - foreach <[hand_pos].points_between[<[hit]>].distance[1.2]> as:point:
                 - playeffect effect:redstone offset:0 special_data:0.5|#00aaee at:<[point]>
+                - define target <[point].find_entities[living].within[1].exclude[<player>].if_null[null]>
+                - if <[target].any.if_null[false]>:
+                    - flag <player> ov.match.character.charge:<player.flag[ov.match.character.charge].add[5].min[100].if_null[1]>
+                    - hurt 9 <[target]> source:<player>
                 - wait 1t
-            - define target <[hit].find_entities[!item].within[1].exclude[<player>].if_null[null]>
-            - if <[target].any.if_null[false]>:
-                - flag <player> ov.match.character.charge:<player.flag[ov.match.character.charge].add[5].min[100].if_null[1]>
-                - hurt 9 <[target]> source:<player>
             - run ov_sojourn_railgun_display
 
 ov_sojourn_jump_detection:
