@@ -17,8 +17,7 @@ ov_brigitte:
     debug: false
     script:
         - define characterName Brigitte
-
-    primary_fire:
+    brig_whip_left:
         #whip
         - stop if:<player.has_flag[ov.match.character.shield]>
         - ratelimit <player> 0.6s
@@ -49,6 +48,8 @@ ov_brigitte:
             - if !<[stop]>:
                 - playeffect effect:redstone special_data:0.6|<list[#454545|#000000|#5c5c5c].random> at:<[whip].last> offset:0.2 quantity:40
             - wait 0.01
+    brig_whip_right:
+    primary_fire:
         - define targets <player.location.find_entities[living].within[10].exclude[<player>]>
         - repeat 5:
             - foreach <[targets]> as:p:
@@ -304,14 +305,6 @@ ov_brigitte_pack:
     debug: false
     definitions: target
     script:
-        # - define beam <player.eye_location.right[0.4].below[0.3].points_between[<[target].location.above[0.3].random_offset[0.5]>].distance[0.3]>
-
-        # - foreach <[beam]> as:p:
-        #     - playeffect effect:redstone at:<[p]> offset:0.05 quantity:2 special_data:0.4|#ffee00
-
-        #     - if <[loop_index].mod[2]> == 0:
-        #         - wait 1t
-
         - define for 1
         - define p <player.eye_location.right[0.4].below[0.3]>
         - while <[p].distance[<[target].location>].if_null[0]> > 0.9:
